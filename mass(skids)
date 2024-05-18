@@ -1,1 +1,3138 @@
---deleted. it wont be fixed untill they remove my scriptsharing blacklist.
+local Global = getfenv(2)
+local FakeCoreGuiEnv = game:FindFirstChildOfClass("CoreGui"):FindFirstChild("CoreScriptLocalization")
+local VirtualInputManager = game:FindFirstChildOfClass("VirtualInputManager")
+local HttpService = game:GetService("HttpService")
+
+Global.getgenv = Global
+
+loadstring = Global.load_string or loadstring -- A fix for celery (saw someone talk about it)
+Global.loadstring = loadstring
+
+local nilinstances = {}
+game.DescendantRemoving:Connect(function(Descendant)
+	nilinstances[#nilinstances+1]=Descendant	
+end)
+
+game.DescendantAdded:Connect(function(Descendant)
+	if table.find(nilinstances, Descendant) then
+		nilinstances[Descendant] = nil
+	end
+end)
+
+Global.getexecutorname = function() -- kade
+    return "Incognito"
+end
+
+Global.isnetworkowner = function(Part) -- kade 
+    return Part.ReceiveAge == 0
+end
+
+Global.gethui = function(Part) -- kade 
+    return FakeCoreGuiEnv
+end
+
+Global.getinstances = function() -- kade 
+    local x = {}
+    for i,v in pairs(game:GetDescendants()) do
+        if v:IsA("Instance") then
+            x[#x+1]=v
+        end
+    end
+    return x
+end
+
+Global.getnilinstances = function() -- kade 
+    return nilinstances
+end
+
+Global.getscripts = function() 
+    local x = {}
+    local returned = {}
+
+    local getins, getnilins = getinstances(),getnilinstances() 
+    for i,v in next, getins do
+        table.insert(x, v)
+    end
+    for i,v in next, getnilins do
+        table.insert(x, v)
+    end
+
+    for i,v in pairs(x) do
+        if v:IsA("LocalScript") or v:IsA("ModuleScript") or v:IsA("Script") then
+            returned[#returned+1]=v
+        end
+    end
+
+    return returned
+end
+
+Global.fireclickdetector = function(ClickDetector) -- pio
+    if typeof(ClickDetector) ~= "ClickDetector" then
+        return
+    end
+
+    local Parent = ClickDetector.Parent
+    if (not Parent) or Parent and typeof(Parent) ~= "Part" then
+        return
+    end
+
+    local CameraCalc = workspace.CurrentCamera:WorldToViewportPoint(ClickDetector.Parent.Position)
+
+    VirtualInputManager:SendMouseButtonEvent(res.X, res.Y, 0, true, game, 1)
+    VirtualInputManager:SendMouseButtonEvent(res.X, res.Y, 0, false, game, 1)
+end
+
+Global.request = function(Options) -- kade
+    local Response, Success = nil, nil
+    HttpService:RequestInternal(Options):Start(function(Success, Res)  -- thanks len1781
+        task.delay(3, function()
+            Success = true
+        end)
+
+        Response = Res and Res or true
+    end)
+
+    
+    repeat task.wait() until Response ~= nil
+
+    if typeof(Response) == "boolean" then
+        error("Request() timed out.")
+        return
+    end
+
+    return Response
+end
+
+Global.mouse1down = function() -- jxsh
+    VirtualInputManager:SendMouseButtonEvent(0, 0, 1, true, game, 1)
+end
+
+Global.mouse1up = function() -- jxsh
+    VirtualInputManager:SendMouseButtonEvent(0, 0, 1, false, game, 1)
+end
+
+Global.mouse1click = function() -- jxsh
+    mouse1down()
+    mouse1up()
+end
+
+Global.keypress = function(key) -- jxsh
+    VirtualInputManager:SendKeyEvent(true, key, false, game)
+end
+
+Global.keyrelease = function(key) -- jxsh
+    VirtualInputManager:SendKeyEvent(false, key, false, game)
+end
+local bit = bit32
+function ToEnum(a)
+ for i, v in pairs(Enum.KeyCode:GetEnumItems()) do if tostring(v) == a then return v end end
+end
+local Functions = {}
+local keys={[0x08]=Enum.KeyCode.Backspace,[0x09]=Enum.KeyCode.Tab,[0x0C]=Enum.KeyCode.Clear,[0x0D]=Enum.KeyCode.Return,[0x10]=Enum.KeyCode.LeftShift,[0x11]=Enum.KeyCode.LeftControl,[0x12]=Enum.KeyCode.LeftAlt,[0x13]=Enum.KeyCode.Pause,[0x14]=Enum.KeyCode.CapsLock,[0x1B]=Enum.KeyCode.Escape,[0x20]=Enum.KeyCode.Space,[0x21]=Enum.KeyCode.PageUp,[0x22]=Enum.KeyCode.PageDown,[0x23]=Enum.KeyCode.End,[0x24]=Enum.KeyCode.Home,[0x2D]=Enum.KeyCode.Insert,[0x2E]=Enum.KeyCode.Delete,[0x30]=Enum.KeyCode.Zero,[0x31]=Enum.KeyCode.One,[0x32]=Enum.KeyCode.Two,[0x33]=Enum.KeyCode.Three,[0x34]=Enum.KeyCode.Four,[0x35]=Enum.KeyCode.Five,[0x36]=Enum.KeyCode.Six,[0x37]=Enum.KeyCode.Seven,[0x38]=Enum.KeyCode.Eight,[0x39]=Enum.KeyCode.Nine,[0x41]=Enum.KeyCode.A,[0x42]=Enum.KeyCode.B,[0x43]=Enum.KeyCode.C,[0x44]=Enum.KeyCode.D,[0x45]=Enum.KeyCode.E,[0x46]=Enum.KeyCode.F,[0x47]=Enum.KeyCode.G,[0x48]=Enum.KeyCode.H,[0x49]=Enum.KeyCode.I,[0x4A]=Enum.KeyCode.J,[0x4B]=Enum.KeyCode.K,[0x4C]=Enum.KeyCode.L,[0x4D]=Enum.KeyCode.M,[0x4E]=Enum.KeyCode.N,[0x4F]=Enum.KeyCode.O,[0x50]=Enum.KeyCode.P,[0x51]=Enum.KeyCode.Q,[0x52]=Enum.KeyCode.R,[0x53]=Enum.KeyCode.S,[0x54]=Enum.KeyCode.T,[0x55]=Enum.KeyCode.U,[0x56]=Enum.KeyCode.V,[0x57]=Enum.KeyCode.W,[0x58]=Enum.KeyCode.X,[0x59]=Enum.KeyCode.Y,[0x5A]=Enum.KeyCode.Z,[0x5D]=Enum.KeyCode.Menu,[0x60]=Enum.KeyCode.KeypadZero,[0x61]=Enum.KeyCode.KeypadOne,[0x62]=Enum.KeyCode.KeypadTwo,[0x63]=Enum.KeyCode.KeypadThree,[0x64]=Enum.KeyCode.KeypadFour,[0x65]=Enum.KeyCode.KeypadFive,[0x66]=Enum.KeyCode.KeypadSix,[0x67]=Enum.KeyCode.KeypadSeven,[0x68]=Enum.KeyCode.KeypadEight,[0x69]=Enum.KeyCode.KeypadNine,[0x6A]=Enum.KeyCode.KeypadMultiply,[0x6B]=Enum.KeyCode.KeypadPlus,[0x6D]=Enum.KeyCode.KeypadMinus,[0x6E]=Enum.KeyCode.KeypadPeriod,[0x6F]=Enum.KeyCode.KeypadDivide,[0x70]=Enum.KeyCode.F1,[0x71]=Enum.KeyCode.F2,[0x72]=Enum.KeyCode.F3,[0x73]=Enum.KeyCode.F4,[0x74]=Enum.KeyCode.F5,[0x75]=Enum.KeyCode.F6,[0x76]=Enum.KeyCode.F7,[0x77]=Enum.KeyCode.F8,[0x78]=Enum.KeyCode.F9,[0x79]=Enum.KeyCode.F10,[0x7A]=Enum.KeyCode.F11,[0x7B]=Enum.KeyCode.F12,[0x90]=Enum.KeyCode.NumLock,[0x91]=Enum.KeyCode.ScrollLock,[0xBA]=Enum.KeyCode.Semicolon,[0xBB]=Enum.KeyCode.Equals,[0xBC]=Enum.KeyCode.Comma,[0xBD]=Enum.KeyCode.Minus,[0xBE]=Enum.KeyCode.Period,[0xBF]=Enum.KeyCode.Slash,[0xC0]=Enum.KeyCode.Backquote,[0xDB]=Enum.KeyCode.LeftBracket,[0xDD]=Enum.KeyCode.RightBracket,[0xDE]=Enum.KeyCode.Quote}
+local funcs, names = {}, {}
+local c = 1
+
+local vim = game:GetService('VirtualInputManager');
+function _BLANK() end
+function DescendantCount(tbl)
+    local count = 0
+    if type(tbl) ~= 'table' then return 1 end
+    for i, v in pairs(tbl) do
+        if type(v) == 'table' then
+            count = count + DescendantCount(v) + 1
+        else
+            count = count + 1
+        end
+    end
+    return count
+end
+function Descendants(tbl)
+    local descendants = {}
+    
+    local function process_table(subtbl, prefix)
+        for k, v in pairs(subtbl) do
+            local index = prefix and (prefix .. "." .. tostring(k)) or tostring(k)
+            if type(v) == 'table' then
+                process_table(v, index)
+            else
+                descendants[index] = v
+            end
+        end
+    end
+
+    if type(tbl) ~= 'table' then
+        descendants[tostring(1)] = tbl
+    else
+        process_table(tbl)
+    end
+    
+    return descendants
+end
+
+
+
+
+local Debug = loadstring(game:HttpGet('https://rawscripts.net/raw/Universal-Script-Basic-Functions-12707'))()
+
+--[[ Libraries ]]
+
+
+funcs.base64 = {}
+funcs.crypt = {hex={},url={}}
+funcs.syn = {}
+funcs.syn_backup = {}
+funcs.http = {}
+
+-- [[ Functions ]]
+funcs.clonefunction = function(a)
+ return function(...)
+  return a(...)
+ end
+end
+funcs.cloneref = function(a)
+ local s, _ = pcall(function() return a:Clone() end) return s and _ or a
+end
+funcs.deepclone = function(a)
+ local Result = {}
+ for i, v in pairs(a) do
+  if type(v) == 'table' then
+    Result[i] = funcs.deepclone(v)
+  end
+  Result[i] = v
+ end
+ return Result
+end
+getgenv = getgenv or getfenv(2)
+function SafeOverride(a, b, c) --[[ Index, Data, Should override ]]
+ if getgenv()[a] and not c then return 1 end
+ getgenv()[a] = b
+ return 2
+end
+--[[ The base64 functions were made by https://scriptblox.com/u/yofriendfromschool1 , Credits to him.]]
+funcs.base64.encode = function(data)
+    local letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    return ((data:gsub('.', function(x) 
+        local r,b='',x:byte()
+        for i=8,1,-1 do r=r..(b%2^i-b%2^(i-1)>0 and '1' or '0') end
+        return r;
+    end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
+        if (#x < 6) then return '' end
+        local c=0
+        for i=1,6 do c=c+(x:sub(i,i)=='1' and 2^(6-i) or 0) end
+        return letters:sub(c+1,c+1)
+    end)..({ '', '==', '=' })[#data%3+1])
+end
+funcs.base64.decode = function(data)
+    local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    data = string.gsub(data, '[^'..b..'=]', '')
+    return (data:gsub('.', function(x)
+        if x == '=' then return '' end
+        local r, f = '', (b:find(x) - 1)
+        for i = 6, 1, -1 do
+            r = r .. (f % 2^i - f % 2^(i - 1) > 0 and '1' or '0')
+        end
+        return r;
+    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
+        if #x ~= 8 then return '' end
+        local c = 0
+        for i = 1, 8 do
+            c = c + (x:sub(i, i) == '1' and 2^(8 - i) or 0)
+        end
+        return string.char(c)
+    end))
+end
+
+funcs.loadstring = loadstring
+funcs.getgenv = getgenv
+funcs.crypt.base64 = funcs.base64
+funcs.crypt.base64encode = funcs.base64.encode
+funcs.crypt.base64decode = funcs.base64.decode
+funcs.crypt.base64_encode = funcs.base64.encode
+funcs.crypt.base64_decode = funcs.base64.decode
+
+funcs.crypt.hex.encode = function(txt)
+ txt = tostring(txt)
+ local hex = ''
+ for i = 1, #txt do
+    hex = hex .. string.format("%02x", string.byte(txt, i))
+ end
+ return hex
+end
+funcs.crypt.hex.decode = function(hex)
+    hex = tostring(hex)
+    local text = ""
+    for i = 1, #hex, 2 do
+        local byte_str = string.sub(hex, i, i+1)
+        local byte = tonumber(byte_str, 16)
+        text = text .. string.char(byte)
+    end
+    return text
+end
+funcs.crypt.url.encode = function(a)
+ return game:GetService("HttpService"):UrlEncode(a)
+end
+funcs.crypt.url.decode = function(a)
+    a = tostring(a)
+    a = string.gsub(a, "+", " ")
+    a = string.gsub(a, "%%(%x%x)", function(hex)
+        return string.char(tonumber(hex, 16))
+    end)
+    a = string.gsub(a, "\r\n", "\n")
+    return a
+end
+funcs.crypt.generatekey = function(optionalSize)
+ local key = ''
+ local a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+ for i = 1, optionalSize or 44 do local n = math.random(1, #a) key = key .. a:sub(n, n) end
+ return funcs.base64.encode(key)
+end
+funcs.crypt.generatebytes = function(size)
+ if type(size) ~= 'number' then return error('missing arguement #1 to \'generatebytes\' (number expected)') end
+ return funcs.crypt.generatekey(size)
+end
+funcs.crypt.encrypt = function(a, b)
+ local result = {}
+ a = tostring(a) b = tostring(b)
+ for i = 1, #a do
+    local byte = string.byte(a, i)
+    local keyByte = string.byte(b, (i - 1) % #b + 1)
+    table.insert(result, string.char(bit32.bxor(byte, keyByte)))
+ end
+ return table.concat(result)
+end
+funcs.crypt.decrypt = funcs.crypt.encrypt
+funcs.crypt.random = function(len)
+ assert(type(len)~='number', 'invalid arguement #1 to \'random\', number expected got ' .. type(len))
+ return funcs.crypt.generatekey(len)
+end
+--[[ Basic XOR encryption because i don't know wtf synapse uses for crypt.encrypt ]]
+
+local active = true
+game:GetService("UserInputService").WindowFocused:Connect(function()
+ active = true
+end)
+
+game:GetService("UserInputService").WindowFocusReleased:Connect(function()
+ active = false
+end)
+
+funcs.isrbxactive = function()
+ return active
+end
+funcs.gethui = function()
+ local s, H = pcall(function()
+  return game:GetService("CoreGui")
+ end)
+ return s and H or game:GetService("Players").LocalPlayer.PlayerGui
+end
+funcs.setclipboard = function(data)
+    local old = game:GetService("UserInputService"):GetFocusedTextBox()
+    local copy = tostring(data)
+    local gui = Instance.new("ScreenGui", getgenv().gethui())
+    local a = Instance.new('TextBox', gui)
+    a.PlaceholderText = ''
+    a.Text = copy
+    a.ClearTextOnFocus = false
+    a.Size = UDim2.new(.1, 0, .15, 0)
+    a.Position = UDim2.new(10, 0, 10, 0)
+    a:CaptureFocus()
+    a = Enum.KeyCode
+    local Keys = {
+     a.RightControl, a.A
+    }
+    local Keys2 = {
+     a.RightControl, a.C, a.V
+    }
+    for i, v in ipairs(Keys) do
+     vim:SendKeyEvent(true, v, false, game)
+     task.wait()
+    end
+    for i, v in ipairs(Keys) do
+     vim:SendKeyEvent(false, v, false, game)
+     task.wait()
+    end
+    for i, v in ipairs(Keys2) do
+     vim:SendKeyEvent(true, v, false, game)
+     task.wait()
+    end
+    for i, v in ipairs(Keys2) do
+     vim:SendKeyEvent(false, v, false, game)
+     task.wait()
+    end
+    gui:Destroy()
+    if old then old:CaptureFocus() end
+end
+funcs.syn.write_clipboard = funcs.setclipboard
+funcs.toclipboad = funcs.setclipboard
+funcs.setrbxclipboard = funcs.setclipboard
+
+funcs.syn.protect_gui = function(gui) -- Does not actually protect it, just parents to gethui and renames the gui to a roblox gui.
+ names[gui] = {name=gui.Name,parent=gui.Parent}
+ if getgenv().gethui() == game:GetService("Players").LocalPlayer.PlayerGui then
+  gui.Name = 'Chat'
+ else
+  gui.Name = 'RobloxGui'
+ end
+ gui.Parent = getgenv().gethui()
+end
+funcs.syn.unprotect_gui = function(gui)
+ if names[gui] then gui.Name = names[gui].name gui.Parent = names[gui].parent end
+end
+funcs.syn.secure_call = function(func) -- Does not do a secure call, just pcalls it.
+ return pcall(func)
+end
+
+
+funcs.isreadonly = function(tbl)
+ if type(tbl) ~= 'table' then return false end
+ return table.isfrozen(tbl)
+end
+funcs.setreadonly = function(tbl, cond)
+ if cond then
+  table.freeze(tbl)
+ else
+  return funcs.deepclone(tbl)
+ end
+end
+funcs.httpget = function(url)
+ return game:HttpGet(url)
+end
+funcs.httppost = function(url, body, contenttype)
+ return game:HttpPostAsync(url, body, contenttype)
+end
+funcs.request = function(args)
+ if args.Method == 'GET' then
+  local result = {}
+  local s, getresult = pcall(function() return funcs.httpget(args.Url) end)
+  result.Body = s and getresult or ''
+  result.Success = s
+  result.StatusCode = s and 200 or 400 -- Inaccurate but works i guess?
+  return result
+ elseif args.Method == 'POST' then
+  local result = {}
+  local s, r = pcall(function() return funcs.httppost(args.Url, args.Body or '', args.Headers and args.Headers['Content-Type'] and args.Headers['Content-Type'] or 'application/x-www-form-urlencoded') end)
+  result.Success = s
+  result.Body = r
+  result.StatusCode = s and 200 or 400 -- Inaccurate but works i guess?
+  return result
+ else
+  print('script tried to send an http request with a non implemented method',args.Method)
+  return {Success=false,StatusCode=404} -- 404 means not found which can cause some errors in scripts.
+ end
+end
+funcs.newcclosure = function(func) -- This is a horrible attempt at making newcclosure but it is practically impossible in luau (or so i think)
+ return function(...)
+  func(...)
+ end
+end
+funcs.mouse1click = function(x, y)
+ x = x or 0
+ y = y or 0
+ vim:SendMouseButtonEvent(x, y, 0, true, game, false)
+ task.wait()
+ vim:SendMouseButtonEvent(x, y, 0, false, game, false)
+end
+funcs.mouse2click = function(x, y)
+ x = x or 0
+ y = y or 0
+ vim:SendMouseButtonEvent(x, y, 1, true, game, false)
+ task.wait()
+ vim:SendMouseButtonEvent(x, y, 1, false, game, false)
+end
+funcs.mouse1press = function(x, y)
+ x = x or 0
+ y = y or 0
+ vim:SendMouseButtonEvent(x, y, 0, true, game, false)
+end
+funcs.mouse1release = function(x, y)
+ x = x or 0
+ y = y or 0
+ vim:SendMouseButtonEvent(x, y, 0, false, game, false)
+end
+funcs.mouse2press = function(x, y)
+ x = x or 0
+ y = y or 0
+ vim:SendMouseButtonEvent(x, y, 1, true, game, false)
+end
+funcs.mouse2release = function(x, y)
+ x = x or 0
+ y = y or 0
+ vim:SendMouseButtonEvent(x, y, 1, false, game, false)
+end
+funcs.mousescroll = function(x, y, a)
+ x = x or 0
+ y = y or 0
+ a = a and true or false
+ vim:SendMouseWheelEvent(x, y, a, game)
+end
+funcs.keyclick = function(key)
+ if typeof(key) == 'number' then
+ if not keys[key] then return error("Key "..tostring(key) .. ' not found!') end
+ vim:SendKeyEvent(true, keys[key], false, game)
+ task.wait()
+ vim:SendKeyEvent(false, keys[key], false, game)
+ elseif typeof(Key) == 'EnumItem' then
+  vim:SendKeyEvent(true, key, false, game)
+  task.wait()
+  vim:SendKeyEvent(false, key, false, game)
+ end
+end
+funcs.keypress = function(key)
+ if typeof(key) == 'number' then
+ if not keys[key] then return error("Key "..tostring(key) .. ' not found!') end
+ vim:SendKeyEvent(true, keys[key], false, game)
+ elseif typeof(Key) == 'EnumItem' then
+  vim:SendKeyEvent(true, key, false, game)
+ end
+end
+funcs.keyrelease = function(key)
+ if typeof(key) == 'number' then
+ if not keys[key] then return error("Key "..tostring(key) .. ' not found!') end
+ vim:SendKeyEvent(false, keys[key], false, game)
+ elseif typeof(Key) == 'EnumItem' then
+  vim:SendKeyEvent(false, key, false, game)
+ end
+end
+funcs.mousemoverel = function(relx, rely)
+ local Pos = workspace.CurrentCamera.ViewportSize
+ relx = relx or 0
+ rely = rely or 0
+ local x = Pos.X * relx
+ local y = Pos.Y * rely
+ vim:SendMouseMoveEvent(x, y, game)
+end
+funcs.mousemoveabs = function(x, y)
+ x = x or 0 y = y or 0
+ vim:SendMouseMoveEvent(x, y, game)
+end
+
+funcs.isexecutorclosure = function(fnc)
+ return Functions[fnc] and true or false
+end
+
+-- [[ File system is something i do not know how to implement in roblox lua. ]]
+funcs.writefile = _BLANK
+funcs.makefolder = _BLANK
+funcs.delfile = _BLANK
+funcs.delfolder = _BLANK
+funcs.isfile = function(...) return false end
+funcs.isfolder = function(...) return false end
+funcs.listfiles = function() return {} end
+funcs.readfile = function() return '' end
+funcs.loadfile = _BLANK
+funcs.appendfile = _BLANK
+
+funcs.http.request = funcs.request
+funcs.syn.crypt = funcs.crypt
+funcs.syn.crypto = funcs.crypt
+funcs.syn_backup = funcs.syn
+
+
+funcs.getexecutorname = function()
+ return 'MoreUNC', 1
+end
+funcs.identifyexecutor = funcs.getexecutorname
+funcs.http_request = getgenv().request or funcs.request
+funcs.getscripts = function()
+ local a = {};for i, v in pairs(game:GetDescendants()) do if v:IsA("LocalScript") or v:IsA("ModuleScript") then table.insert(a, v) end end return a
+end
+funcs.get_scripts = function()
+ local a = {};for i, v in pairs(game:GetDescendants()) do if v:IsA("LocalScript") or v:IsA("ModuleScript") then table.insert(a, v) end end return a
+end
+funcs.getmodules = function()
+ local a = {};for i, v in pairs(game:GetDescendants()) do if v:IsA("ModuleScript") then table.insert(a, v) end end return a
+end
+funcs.make_readonly = funcs.setreadonly
+funcs.makereadonly = funcs.setreadonly
+funcs.base64encode = funcs.crypt.base64encode
+funcs.base64decode = funcs.crypt.base64decode
+funcs.clonefunc = funcs.clonefunction
+funcs.getinstances = function()
+ return game:GetDescendants()
+end
+funcs.iswriteable = function(tbl)
+ return not table.isfrozen(tbl)
+end
+funcs.makewriteable = function(tbl)
+ return funcs.setreadonly(tbl, false)
+end
+-- [[ Hashing is quiet hard (for me) so i made many functions. Please ignore, No this isnt obfuscated you can get the regular code at https://goonlinetools.com/lua-beautifier/ ]]
+
+local function str2hexa(a)return string.gsub(a,".",function(b)return string.format("%02x",string.byte(b))end)end;local function num2s(c,d)local a=""for e=1,d do local f=c%256;a=string.char(f)..a;c=(c-f)/256 end;return a end;local function s232num(a,e)local d=0;for g=e,e+3 do d=d*256+string.byte(a,g)end;return d end;local function preproc(h,i)local j=64-(i+9)%64;i=num2s(8*i,8)h=h.."\128"..string.rep("\0",j)..i;assert(#h%64==0)return h end;local function k(h,e,l)local m={}local n={0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2}for g=1,16 do m[g]=s232num(h,e+(g-1)*4)end;for g=17,64 do local o=m[g-15]local p=bit.bxor(bit.rrotate(o,7),bit.rrotate(o,18),bit.rshift(o,3))o=m[g-2]local q=bit.bxor(bit.rrotate(o,17),bit.rrotate(o,19),bit.rshift(o,10))m[g]=(m[g-16]+p+m[g-7]+q)%2^32 end;local r,s,b,t,u,v,w,x=l[1],l[2],l[3],l[4],l[5],l[6],l[7],l[8]for e=1,64 do local p=bit.bxor(bit.rrotate(r,2),bit.rrotate(r,13),bit.rrotate(r,22))local y=bit.bxor(bit.band(r,s),bit.band(r,b),bit.band(s,b))local z=(p+y)%2^32;local q=bit.bxor(bit.rrotate(u,6),bit.rrotate(u,11),bit.rrotate(u,25))local A=bit.bxor(bit.band(u,v),bit.band(bit.bnot(u),w))local B=(x+q+A+n[e]+m[e])%2^32;x=w;w=v;v=u;u=(t+B)%2^32;t=b;b=s;s=r;r=(B+z)%2^32 end;l[1]=(l[1]+r)%2^32;l[2]=(l[2]+s)%2^32;l[3]=(l[3]+b)%2^32;l[4]=(l[4]+t)%2^32;l[5]=(l[5]+u)%2^32;l[6]=(l[6]+v)%2^32;l[7]=(l[7]+w)%2^32;l[8]=(l[8]+x)%2^32 end;funcs.crypt.hash=function(h)h=preproc(h,#h)local l={0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19}for e=1,#h,64 do k(h,e,l)end;return str2hexa(num2s(l[1],4)..num2s(l[2],4)..num2s(l[3],4)..num2s(l[4],4)..num2s(l[5],4)..num2s(l[6],4)..num2s(l[7],4)..num2s(l[8],4))end
+
+local Count = 0
+local Total = 0
+for index, _ in pairs(Descendants(funcs)) do
+ if not getgenv()[index] then
+  Total = Total + 1
+ end
+end
+for i, v in pairs(Descendants(funcs)) do
+ if not getgenv()[i] then Count = Count + 1 end
+ local Result = SafeOverride(i, v)
+ local str = Result == 1 and ('%s %s already exists.'):format(type(v), i) or Result == 2 and ("Added %s %s to the global environment. (%d/%d)"):format(type(v), i, Count, Total) or Result ~= 1 and Result ~= 2 and ("Unknown result for function %s."):format(type(v), i)
+ print(str)
+end
+
+
+
+
+-- put this in autoexc for 46 unc functions will add on or replace some so delete the ones you already have (that is if they work)
+-- 44/83 53% NOTE: u need to put queue_on_teleport in ur autoexec
+-- Shoutout to me (Sky/jazminethecooles2001), luau, and vxsty
+-- if this doesnt work try just executing this or executing the ones u need or one by one or so
+getgenv().clonefunction = function(func)
+    return function(...)
+        local done = func(...)
+        local toreturn = {}
+        if type(done) == "table" then
+            for i, v in pairs(done) do
+                toreturn[i] = v
+            end
+        else
+            toreturn = done
+        end
+        return toreturn
+    end
+end
+getgenv().cloneref = function(a)
+	local s, _ = pcall(function() return a:Clone() end) return s and _ or a
+end
+if not getgenv().crypt then
+    getgenv().crypt = {}
+end
+getgenv().crypt.base64decode = function(data)
+    local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    data = string.gsub(data, '[^'..b..'=]', '')
+    return (data:gsub('.', function(x)
+        if x == '=' then return '' end
+        local r, f = '', (b:find(x) - 1)
+        for i = 6, 1, -1 do
+            r = r .. (f % 2^i - f % 2^(i - 1) > 0 and '1' or '0')
+        end
+        return r;
+    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
+        if #x ~= 8 then return '' end
+        local c = 0
+        for i = 1, 8 do
+            c = c + (x:sub(i, i) == '1' and 2^(8 - i) or 0)
+        end
+        return string.char(c)
+    end))
+end
+getgenv().encrypt64k = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+getgenv().crypt.base64encode = function(data)
+    return ((data:gsub('.', function(x) 
+        local r,b='',x:byte()
+        for i=8,1,-1 do r=r..(b%2^i-b%2^(i-1)>0 and '1' or '0') end
+        return r;
+    end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
+        if (#x < 6) then return '' end
+        local c=0
+        for i=1,6 do c=c+(x:sub(i,i)=='1' and 2^(6-i) or 0) end
+        return getgenv().encrypt64k:sub(c+1,c+1)
+    end)..({ '', '==', '=' })[#data%3+1])
+end
+-- creds to vxsty
+getgenv().crypt.generatebytes = function(size)
+	if type(size) ~= 'number' then
+		return error('missing arguement #1 to \'generatebytes\' (number expected)')
+	end
+	return getgenv().crypt.generatekey(size) -- must run this unc fix first
+end
+-- creds to vxsty
+getgenv().crypt.generatekey = function(optionalSize)
+	local key = ''
+	local a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+	for i = 1, optionalSize or 44 do
+		local n = math.random(1, #a)
+		key = key .. a:sub(n, n)
+	end
+	return getgenv().crypt.base64encode(key)
+end
+-- vxsty made this
+getgenv().debugg = {}
+getgenv().debugg.getinfo = function(thread)
+ local CurrentLine = tonumber(debug.info(thread, 'l'))
+ local Source = debug.info(thread, 's')
+ local name = debug.info(thread, 'n')
+ local numparams, isvrg = debug.info(thread, 'a')
+ if #name == 0 then name = nil end
+ local a, b = debug.info(thread, 'a')
+ return {
+  ['currentline'] = CurrentLine,
+  ['Source'] = Source,
+  ['name'] = tostring(name),
+  ['numparams'] = tonumber(numparams),
+  ['is_vararg'] = isvrg and 1 or 0,
+  ['short_src'] = tostring(Source:sub(1, 60))
+  }
+end
+-- vxsty made this
+getgenv().getcallingscript = function()
+    local s = debug.info(1, 's')
+    for i, v in next, game:GetDescendants() do
+     if v:GetFullName() == s then return v end
+    end
+    return nil
+end
+getgenv().gethui = function()
+    return game:GetService("CoreGui")
+end
+getgenv().getscripts = function()
+	local stuff = game:GetDescendants()
+	local scripts = {}
+	for i, v in pairs(stuff) do
+		if v:IsA("ModuleScript") or v:IsA("LocalScript") then
+			table.insert(scripts,v)
+		end
+	end
+end
+getgenv().hookfunction = function(func, rep)
+	for i,v in pairs(getfenv()) do
+		if v == func then
+			getfenv()[i] = rep
+		end
+	end
+end
+getgenv().identifyexecutor = function()
+    return "Sky's, Luau, vxsty UNC"
+end
+getgenv().iscclosure = function(func)
+    local toreturn = false
+    for i,v in pairs(getgenv()) do
+        if v == func then
+            toreturn = true
+        end
+    end
+    return toreturn
+end
+getgenv().islclosure = function(func)
+    local toreturn = true
+    for i,v in pairs(getgenv()) do
+        if v == func then
+            toreturn = false
+        end
+    end
+    return toreturn
+end
+getgenv().UISFTE = game:GetService("UserInputService")
+
+getgenv().IsWindowFocuseddsa = true
+getgenv().dsaThread = coroutine.running()
+getgenv().con1 = getgenv().UISFTE.InputChanged:Connect(function()
+	coroutine.resume(getgenv().dsaThread)
+end)
+getgenv().con2 = getgenv().UISFTE.WindowFocused:Connect(function()
+	coroutine.resume(getgenv().dsaThread)
+end)
+coroutine.yield()
+getgenv().con1:Disconnect()
+getgenv()con2:Disconnect()
+getgenv().IsWindowFocuseddsa = true
+getgenv().UISFTE.WindowFocused:Connect(function()
+	getgenv().IsWindowFocuseddsa = true
+end)
+getgenv().UISFTE.WindowFocusReleased:Connect(function()
+	getgenv().IsWindowFocuseddsa = false
+end)
+
+getgenv().isrbxactive = function()
+	return getgenv().IsWindowFocuseddsa
+end
+getgenv().isgameactive = getgenv().isrbxactive
+getgenv().isreadonly = function(instance, property)
+	return not (pcall(function()
+		instance[property] = instance[property] -- errors if readonly, or nonexistant
+	end))
+end
+getgenv().messagebox = function(text,caption,style,callback)
+    if style == 0 then
+        local Converted = {
+            ["_messagebox"] = Instance.new("ScreenGui");
+            ["_Frame"] = Instance.new("Frame");
+            ["_ok"] = Instance.new("TextButton");
+            ["_LocalScript"] = Instance.new("LocalScript");
+            ["_shadow"] = Instance.new("Frame");
+            ["_main"] = Instance.new("TextLabel");
+            ["_title"] = Instance.new("TextLabel");
+            ["_x"] = Instance.new("TextButton");
+            ["_LocalScript1"] = Instance.new("LocalScript");
+            ["_Dragify"] = Instance.new("LocalScript");
+        }
+        
+        Converted["_messagebox"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        Converted["_messagebox"].Name = "messagebox"
+        Converted["_messagebox"].Parent = game:GetService("CoreGui")
+        
+        Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_Frame"].BorderSizePixel = 0
+        Converted["_Frame"].Position = UDim2.new(0.456591636, 0, 0.420382172, 0)
+        Converted["_Frame"].Size = UDim2.new(0, 153, 0, 163)
+        Converted["_Frame"].Parent = Converted["_messagebox"]
+        
+        Converted["_ok"].Font = Enum.Font.SourceSans
+        Converted["_ok"].Text = "OK"
+        Converted["_ok"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_ok"].TextSize = 14
+        Converted["_ok"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_ok"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_ok"].BorderSizePixel = 2
+        Converted["_ok"].Position = UDim2.new(0.473963529, 0, 0.792376757, 0)
+        Converted["_ok"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_ok"].ZIndex = 2
+        Converted["_ok"].Name = "ok"
+        Converted["_ok"].Parent = Converted["_Frame"]
+        
+        Converted["_shadow"].BackgroundColor3 = Color3.fromRGB(240.0000160932541, 240.0000160932541, 240.0000160932541)
+        Converted["_shadow"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_shadow"].BorderSizePixel = 0
+        Converted["_shadow"].Position = UDim2.new(0, 0, 0.736196339, 0)
+        Converted["_shadow"].Size = UDim2.new(0, 153, 0, 43)
+        Converted["_shadow"].Name = "shadow"
+        Converted["_shadow"].Parent = Converted["_Frame"]
+        
+        Converted["_main"].Font = Enum.Font.SourceSans
+        Converted["_main"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].TextSize = 14
+        Converted["_main"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_main"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].BorderSizePixel = 0
+        Converted["_main"].Position = UDim2.new(0.339869291, 0, 0.202453986, 0)
+        Converted["_main"].Size = UDim2.new(0, 48, 0, 50)
+        Converted["_main"].Name = "main"
+        Converted["_main"].Text = text
+        Converted["_main"].Parent = Converted["_Frame"]
+        
+        Converted["_title"].Font = Enum.Font.SourceSans
+        Converted["_title"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].TextSize = 14
+        Converted["_title"].TextXAlignment = Enum.TextXAlignment.Left
+        Converted["_title"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_title"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].BorderSizePixel = 0
+        Converted["_title"].Size = UDim2.new(0, 121, 0, 33)
+        Converted["_title"].Name = "title"
+        Converted["_title"].Text = caption
+        Converted["_title"].Parent = Converted["_Frame"]
+        
+        Converted["_x"].Font = Enum.Font.SourceSans
+        Converted["_x"].Text = "X"
+        Converted["_x"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].TextSize = 14
+        Converted["_x"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_x"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].BorderSizePixel = 0
+        Converted["_x"].Position = UDim2.new(0.790849686, 0, 0, 0)
+        Converted["_x"].Size = UDim2.new(0, 32, 0, 26)
+        Converted["_x"].Name = "x"
+        Converted["_x"].Parent = Converted["_Frame"]
+        
+        local fake_module_scripts = {}
+        
+        local toreturn = nil
+
+        local function RXIOXO_fake_script() -- Fake Script: StarterGui.messagebox.Frame.ok.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_ok"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 1
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function LPTAF_fake_script() -- Fake Script: StarterGui.messagebox.Frame.x.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_x"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function OVXL_fake_script() -- Fake Script: StarterGui.messagebox.Frame.Dragify
+            local script = Instance.new("LocalScript")
+            script.Name = "Dragify"
+            script.Parent = Converted["_Frame"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            local UIS = game:GetService("UserInputService")
+            function dragify(Frame)
+                dragToggle = nil
+                dragSpeed = 0.15
+                dragInput = nil
+                dragStart = nil
+                dragPos = nil
+                function updateInput(input)
+                    Delta = input.Position - dragStart
+                    Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
+                    game:GetService("TweenService"):Create(Frame, TweenInfo.new(0.15), {Position = Position}):Play()
+                end
+                Frame.InputBegan:Connect(function(input)
+                    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and UIS:GetFocusedTextBox() == nil then
+                        dragToggle = true
+                        dragStart = input.Position
+                        startPos = Frame.Position
+                        input.Changed:Connect(function()
+                            if input.UserInputState == Enum.UserInputState.End then
+                                dragToggle = false
+                            end
+                        end)
+                    end
+                end)
+                Frame.InputChanged:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                        dragInput = input
+                    end
+                end)
+                game:GetService("UserInputService").InputChanged:Connect(function(input)
+                    if input == dragInput and dragToggle then
+                        updateInput(input)
+                    end
+                end)
+            end
+            dragify(script.Parent)
+            
+        end
+        
+        coroutine.wrap(RXIOXO_fake_script)()
+        coroutine.wrap(LPTAF_fake_script)()
+        coroutine.wrap(OVXL_fake_script)()
+        repeat
+            task.wait()
+        until toreturn ~= nil
+        return toreturn
+
+    elseif style == 1 then
+        local Converted = {
+            ["_messagebox"] = Instance.new("ScreenGui");
+            ["_Frame"] = Instance.new("Frame");
+            ["_ok"] = Instance.new("TextButton");
+            ["_LocalScript"] = Instance.new("LocalScript");
+            ["_shadow"] = Instance.new("Frame");
+            ["_main"] = Instance.new("TextLabel");
+            ["_title"] = Instance.new("TextLabel");
+            ["_x"] = Instance.new("TextButton");
+            ["_LocalScript1"] = Instance.new("LocalScript");
+            ["_Dragify"] = Instance.new("LocalScript");
+            ["_cancel"] = Instance.new("TextButton");
+            ["_LocalScript2"] = Instance.new("LocalScript");
+        }
+        
+        
+        Converted["_messagebox"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        Converted["_messagebox"].Name = "messagebox"
+        Converted["_messagebox"].Parent = game:GetService("CoreGui")
+        
+        Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_Frame"].BorderSizePixel = 0
+        Converted["_Frame"].Position = UDim2.new(0.456591636, 0, 0.420382172, 0)
+        Converted["_Frame"].Size = UDim2.new(0, 263, 0, 163)
+        Converted["_Frame"].Parent = Converted["_messagebox"]
+        
+        Converted["_ok"].Font = Enum.Font.SourceSans
+        Converted["_ok"].Text = "OK"
+        Converted["_ok"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_ok"].TextSize = 14
+        Converted["_ok"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_ok"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_ok"].BorderSizePixel = 2
+        Converted["_ok"].Position = UDim2.new(0.0687347576, 0, 0.792376757, 0)
+        Converted["_ok"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_ok"].ZIndex = 2
+        Converted["_ok"].Name = "ok"
+        Converted["_ok"].Parent = Converted["_Frame"]
+        
+        Converted["_shadow"].BackgroundColor3 = Color3.fromRGB(240.0000160932541, 240.0000160932541, 240.0000160932541)
+        Converted["_shadow"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_shadow"].BorderSizePixel = 0
+        Converted["_shadow"].Position = UDim2.new(0, 0, 0.736196339, 0)
+        Converted["_shadow"].Size = UDim2.new(0, 262, 0, 43)
+        Converted["_shadow"].Name = "shadow"
+        Converted["_shadow"].Parent = Converted["_Frame"]
+        
+        Converted["_main"].Font = Enum.Font.SourceSans
+        Converted["_main"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].TextSize = 14
+        Converted["_main"].Text = text
+        Converted["_main"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_main"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].BorderSizePixel = 0
+        Converted["_main"].Position = UDim2.new(0.434926301, 0, 0.257668704, 0)
+        Converted["_main"].Size = UDim2.new(0, 48, 0, 50)
+        Converted["_main"].Name = "main"
+        Converted["_main"].Parent = Converted["_Frame"]
+        
+        Converted["_title"].Font = Enum.Font.SourceSans
+        Converted["_title"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].TextSize = 14
+        Converted["_title"].Text = caption
+        Converted["_title"].TextXAlignment = Enum.TextXAlignment.Left
+        Converted["_title"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_title"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].BorderSizePixel = 0
+        Converted["_title"].Size = UDim2.new(0, 230, 0, 33)
+        Converted["_title"].Name = "title"
+        Converted["_title"].Parent = Converted["_Frame"]
+        
+        Converted["_x"].Font = Enum.Font.SourceSans
+        Converted["_x"].Text = "X"
+        Converted["_x"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].TextSize = 14
+        Converted["_x"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_x"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].BorderSizePixel = 0
+        Converted["_x"].Position = UDim2.new(0.878302157, 0, 0, 0)
+        Converted["_x"].Size = UDim2.new(0, 32, 0, 26)
+        Converted["_x"].Name = "x"
+        Converted["_x"].Parent = Converted["_Frame"]
+        
+        Converted["_cancel"].Font = Enum.Font.SourceSans
+        Converted["_cancel"].Text = "Cancel"
+        Converted["_cancel"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_cancel"].TextSize = 14
+        Converted["_cancel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_cancel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_cancel"].BorderSizePixel = 2
+        Converted["_cancel"].Position = UDim2.new(0.593449712, 0, 0.792376757, 0)
+        Converted["_cancel"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_cancel"].ZIndex = 2
+        Converted["_cancel"].Name = "cancel"
+        Converted["_cancel"].Parent = Converted["_Frame"]
+        
+        
+        local fake_module_scripts = {}
+        
+        
+        local toreturn = nil
+
+        local function CKPCU_fake_script() -- Fake Script: StarterGui.messagebox.Frame.ok.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_ok"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 1
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function CIWSM_fake_script() -- Fake Script: StarterGui.messagebox.Frame.x.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_x"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function HAHLPR_fake_script() -- Fake Script: StarterGui.messagebox.Frame.Dragify
+            local script = Instance.new("LocalScript")
+            script.Name = "Dragify"
+            script.Parent = Converted["_Frame"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            local UIS = game:GetService("UserInputService")
+            function dragify(Frame)
+                dragToggle = nil
+                dragSpeed = 0.15
+                dragInput = nil
+                dragStart = nil
+                dragPos = nil
+                function updateInput(input)
+                    Delta = input.Position - dragStart
+                    Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
+                    game:GetService("TweenService"):Create(Frame, TweenInfo.new(0.15), {Position = Position}):Play()
+                end
+                Frame.InputBegan:Connect(function(input)
+                    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and UIS:GetFocusedTextBox() == nil then
+                        dragToggle = true
+                        dragStart = input.Position
+                        startPos = Frame.Position
+                        input.Changed:Connect(function()
+                            if input.UserInputState == Enum.UserInputState.End then
+                                dragToggle = false
+                            end
+                        end)
+                    end
+                end)
+                Frame.InputChanged:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                        dragInput = input
+                    end
+                end)
+                game:GetService("UserInputService").InputChanged:Connect(function(input)
+                    if input == dragInput and dragToggle then
+                        updateInput(input)
+                    end
+                end)
+            end
+            dragify(script.Parent)
+            
+        end
+        local function NZUHXUG_fake_script() -- Fake Script: StarterGui.messagebox.Frame.cancel.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_cancel"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 2
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        coroutine.wrap(CKPCU_fake_script)()
+        coroutine.wrap(CIWSM_fake_script)()
+        coroutine.wrap(HAHLPR_fake_script)()
+        coroutine.wrap(NZUHXUG_fake_script)()
+        repeat
+            task.wait()
+        until toreturn ~= nil
+        return toreturn
+    elseif style == 2 then
+        local Converted = {
+            ["_messagebox"] = Instance.new("ScreenGui");
+            ["_Frame"] = Instance.new("Frame");
+            ["_abort"] = Instance.new("TextButton");
+            ["_LocalScript"] = Instance.new("LocalScript");
+            ["_shadow"] = Instance.new("Frame");
+            ["_main"] = Instance.new("TextLabel");
+            ["_title"] = Instance.new("TextLabel");
+            ["_x"] = Instance.new("TextButton");
+            ["_LocalScript1"] = Instance.new("LocalScript");
+            ["_Dragify"] = Instance.new("LocalScript");
+            ["_ignore"] = Instance.new("TextButton");
+            ["_LocalScript2"] = Instance.new("LocalScript");
+            ["_retry"] = Instance.new("TextButton");
+            ["_LocalScript3"] = Instance.new("LocalScript");
+        }
+        
+        
+        Converted["_messagebox"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        Converted["_messagebox"].Name = "messagebox"
+        Converted["_messagebox"].Parent = game:GetService("CoreGui")
+        
+        Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_Frame"].BorderSizePixel = 0
+        Converted["_Frame"].Position = UDim2.new(0.456591636, 0, 0.420382172, 0)
+        Converted["_Frame"].Size = UDim2.new(0, 263, 0, 163)
+        Converted["_Frame"].Parent = Converted["_messagebox"]
+        
+        Converted["_abort"].Font = Enum.Font.SourceSans
+        Converted["_abort"].Text = "Abort"
+        Converted["_abort"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_abort"].TextSize = 14
+        Converted["_abort"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_abort"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_abort"].BorderSizePixel = 2
+        Converted["_abort"].Position = UDim2.new(0.0421188995, 0, 0.792376757, 0)
+        Converted["_abort"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_abort"].ZIndex = 2
+        Converted["_abort"].Name = "abort"
+        Converted["_abort"].Parent = Converted["_Frame"]
+        
+        Converted["_shadow"].BackgroundColor3 = Color3.fromRGB(240.0000160932541, 240.0000160932541, 240.0000160932541)
+        Converted["_shadow"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_shadow"].BorderSizePixel = 0
+        Converted["_shadow"].Position = UDim2.new(0, 0, 0.736196339, 0)
+        Converted["_shadow"].Size = UDim2.new(0, 262, 0, 43)
+        Converted["_shadow"].Name = "shadow"
+        Converted["_shadow"].Parent = Converted["_Frame"]
+        
+        Converted["_main"].Font = Enum.Font.SourceSans
+        Converted["_main"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].TextSize = 14
+        Converted["_main"].Text = text
+        Converted["_main"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_main"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].BorderSizePixel = 0
+        Converted["_main"].Position = UDim2.new(0.434926301, 0, 0.257668704, 0)
+        Converted["_main"].Size = UDim2.new(0, 48, 0, 50)
+        Converted["_main"].Name = "main"
+        Converted["_main"].Parent = Converted["_Frame"]
+        
+        Converted["_title"].Font = Enum.Font.SourceSans
+        Converted["_title"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].TextSize = 14
+        Converted["_title"].Text = caption
+        Converted["_title"].TextXAlignment = Enum.TextXAlignment.Left
+        Converted["_title"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_title"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].BorderSizePixel = 0
+        Converted["_title"].Size = UDim2.new(0, 230, 0, 33)
+        Converted["_title"].Name = "title"
+        Converted["_title"].Parent = Converted["_Frame"]
+        
+        Converted["_x"].Font = Enum.Font.SourceSans
+        Converted["_x"].Text = "X"
+        Converted["_x"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].TextSize = 14
+        Converted["_x"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_x"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].BorderSizePixel = 0
+        Converted["_x"].Position = UDim2.new(0.878302157, 0, 0, 0)
+        Converted["_x"].Size = UDim2.new(0, 32, 0, 26)
+        Converted["_x"].Name = "x"
+        Converted["_x"].Parent = Converted["_Frame"]
+        
+        Converted["_ignore"].Font = Enum.Font.SourceSans
+        Converted["_ignore"].Text = "Ignore"
+        Converted["_ignore"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_ignore"].TextSize = 14
+        Converted["_ignore"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_ignore"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_ignore"].BorderSizePixel = 2
+        Converted["_ignore"].Position = UDim2.new(0.688506722, 0, 0.792376757, 0)
+        Converted["_ignore"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_ignore"].ZIndex = 2
+        Converted["_ignore"].Name = "ignore"
+        Converted["_ignore"].Parent = Converted["_Frame"]
+        
+        Converted["_retry"].Font = Enum.Font.SourceSans
+        Converted["_retry"].Text = "Retry"
+        Converted["_retry"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_retry"].TextSize = 14
+        Converted["_retry"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_retry"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_retry"].BorderSizePixel = 2
+        Converted["_retry"].Position = UDim2.new(0.357708246, 0, 0.792376757, 0)
+        Converted["_retry"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_retry"].ZIndex = 2
+        Converted["_retry"].Name = "retry"
+        Converted["_retry"].Parent = Converted["_Frame"]
+        
+        
+        local fake_module_scripts = {}
+        
+        local toreturn = nil
+        
+        local function UMBLVK_fake_script() -- Fake Script: StarterGui.messagebox.Frame.abort.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_abort"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 1
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function CYFK_fake_script() -- Fake Script: StarterGui.messagebox.Frame.x.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_x"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function CILKM_fake_script() -- Fake Script: StarterGui.messagebox.Frame.Dragify
+            local script = Instance.new("LocalScript")
+            script.Name = "Dragify"
+            script.Parent = Converted["_Frame"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            local UIS = game:GetService("UserInputService")
+            function dragify(Frame)
+                dragToggle = nil
+                dragSpeed = 0.15
+                dragInput = nil
+                dragStart = nil
+                dragPos = nil
+                function updateInput(input)
+                    Delta = input.Position - dragStart
+                    Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
+                    game:GetService("TweenService"):Create(Frame, TweenInfo.new(0.15), {Position = Position}):Play()
+                end
+                Frame.InputBegan:Connect(function(input)
+                    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and UIS:GetFocusedTextBox() == nil then
+                        dragToggle = true
+                        dragStart = input.Position
+                        startPos = Frame.Position
+                        input.Changed:Connect(function()
+                            if input.UserInputState == Enum.UserInputState.End then
+                                dragToggle = false
+                            end
+                        end)
+                    end
+                end)
+                Frame.InputChanged:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                        dragInput = input
+                    end
+                end)
+                game:GetService("UserInputService").InputChanged:Connect(function(input)
+                    if input == dragInput and dragToggle then
+                        updateInput(input)
+                    end
+                end)
+            end
+            dragify(script.Parent)
+            
+        end
+        local function PAWMI_fake_script() -- Fake Script: StarterGui.messagebox.Frame.ignore.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_ignore"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 3
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function LCJM_fake_script() -- Fake Script: StarterGui.messagebox.Frame.retry.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_retry"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 2
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        
+        coroutine.wrap(UMBLVK_fake_script)()
+        coroutine.wrap(CYFK_fake_script)()
+        coroutine.wrap(CILKM_fake_script)()
+        coroutine.wrap(PAWMI_fake_script)()
+        coroutine.wrap(LCJM_fake_script)()
+        repeat
+            task.wait()
+        until toreturn ~= nil
+        return toreturn
+    elseif style == 3 then
+        local Converted = {
+            ["_messagebox"] = Instance.new("ScreenGui");
+            ["_Frame"] = Instance.new("Frame");
+            ["_yes"] = Instance.new("TextButton");
+            ["_LocalScript"] = Instance.new("LocalScript");
+            ["_shadow"] = Instance.new("Frame");
+            ["_main"] = Instance.new("TextLabel");
+            ["_title"] = Instance.new("TextLabel");
+            ["_x"] = Instance.new("TextButton");
+            ["_LocalScript1"] = Instance.new("LocalScript");
+            ["_Dragify"] = Instance.new("LocalScript");
+            ["_cancel"] = Instance.new("TextButton");
+            ["_LocalScript2"] = Instance.new("LocalScript");
+            ["_no"] = Instance.new("TextButton");
+            ["_LocalScript3"] = Instance.new("LocalScript");
+        }
+        
+        
+        Converted["_messagebox"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        Converted["_messagebox"].Name = "messagebox"
+        Converted["_messagebox"].Parent = game:GetService("CoreGui")
+        
+        Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_Frame"].BorderSizePixel = 0
+        Converted["_Frame"].Position = UDim2.new(0.456591636, 0, 0.420382172, 0)
+        Converted["_Frame"].Size = UDim2.new(0, 263, 0, 163)
+        Converted["_Frame"].Parent = Converted["_messagebox"]
+        
+        Converted["_yes"].Font = Enum.Font.SourceSans
+        Converted["_yes"].Text = "Yes"
+        Converted["_yes"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_yes"].TextSize = 14
+        Converted["_yes"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_yes"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_yes"].BorderSizePixel = 2
+        Converted["_yes"].Position = UDim2.new(0.0421188995, 0, 0.792376757, 0)
+        Converted["_yes"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_yes"].ZIndex = 2
+        Converted["_yes"].Name = "yes"
+        Converted["_yes"].Parent = Converted["_Frame"]
+        
+        Converted["_shadow"].BackgroundColor3 = Color3.fromRGB(240.0000160932541, 240.0000160932541, 240.0000160932541)
+        Converted["_shadow"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_shadow"].BorderSizePixel = 0
+        Converted["_shadow"].Position = UDim2.new(0, 0, 0.736196339, 0)
+        Converted["_shadow"].Size = UDim2.new(0, 262, 0, 43)
+        Converted["_shadow"].Name = "shadow"
+        Converted["_shadow"].Parent = Converted["_Frame"]
+        
+        Converted["_main"].Font = Enum.Font.SourceSans
+        Converted["_main"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].TextSize = 14
+        Converted["_main"].Text = text
+        Converted["_main"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_main"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].BorderSizePixel = 0
+        Converted["_main"].Position = UDim2.new(0.434926301, 0, 0.257668704, 0)
+        Converted["_main"].Size = UDim2.new(0, 48, 0, 50)
+        Converted["_main"].Name = "main"
+        Converted["_main"].Parent = Converted["_Frame"]
+        
+        Converted["_title"].Font = Enum.Font.SourceSans
+        Converted["_title"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].TextSize = 14
+        Converted["_title"].Text = caption
+        Converted["_title"].TextXAlignment = Enum.TextXAlignment.Left
+        Converted["_title"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_title"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].BorderSizePixel = 0
+        Converted["_title"].Size = UDim2.new(0, 230, 0, 33)
+        Converted["_title"].Name = "title"
+        Converted["_title"].Parent = Converted["_Frame"]
+        
+        Converted["_x"].Font = Enum.Font.SourceSans
+        Converted["_x"].Text = "X"
+        Converted["_x"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].TextSize = 14
+        Converted["_x"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_x"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].BorderSizePixel = 0
+        Converted["_x"].Position = UDim2.new(0.878302157, 0, 0, 0)
+        Converted["_x"].Size = UDim2.new(0, 32, 0, 26)
+        Converted["_x"].Name = "x"
+        Converted["_x"].Parent = Converted["_Frame"]
+        
+        Converted["_cancel"].Font = Enum.Font.SourceSans
+        Converted["_cancel"].Text = "Cancel"
+        Converted["_cancel"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_cancel"].TextSize = 14
+        Converted["_cancel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_cancel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_cancel"].BorderSizePixel = 2
+        Converted["_cancel"].Position = UDim2.new(0.688506722, 0, 0.792376757, 0)
+        Converted["_cancel"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_cancel"].ZIndex = 2
+        Converted["_cancel"].Name = "cancel"
+        Converted["_cancel"].Parent = Converted["_Frame"]
+        
+        Converted["_no"].Font = Enum.Font.SourceSans
+        Converted["_no"].Text = "No"
+        Converted["_no"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_no"].TextSize = 14
+        Converted["_no"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_no"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_no"].BorderSizePixel = 2
+        Converted["_no"].Position = UDim2.new(0.357708246, 0, 0.792376757, 0)
+        Converted["_no"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_no"].ZIndex = 2
+        Converted["_no"].Name = "no"
+        Converted["_no"].Parent = Converted["_Frame"]
+        
+        local fake_module_scripts = {}
+        
+        local toreturn = nil
+
+        local function KWWQAE_fake_script() -- Fake Script: StarterGui.messagebox.Frame.yes.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_yes"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 1
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function XPJIE_fake_script() -- Fake Script: StarterGui.messagebox.Frame.x.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_x"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function OTOWUOS_fake_script() -- Fake Script: StarterGui.messagebox.Frame.Dragify
+            local script = Instance.new("LocalScript")
+            script.Name = "Dragify"
+            script.Parent = Converted["_Frame"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            local UIS = game:GetService("UserInputService")
+            function dragify(Frame)
+                dragToggle = nil
+                dragSpeed = 0.15
+                dragInput = nil
+                dragStart = nil
+                dragPos = nil
+                function updateInput(input)
+                    Delta = input.Position - dragStart
+                    Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
+                    game:GetService("TweenService"):Create(Frame, TweenInfo.new(0.15), {Position = Position}):Play()
+                end
+                Frame.InputBegan:Connect(function(input)
+                    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and UIS:GetFocusedTextBox() == nil then
+                        dragToggle = true
+                        dragStart = input.Position
+                        startPos = Frame.Position
+                        input.Changed:Connect(function()
+                            if input.UserInputState == Enum.UserInputState.End then
+                                dragToggle = false
+                            end
+                        end)
+                    end
+                end)
+                Frame.InputChanged:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                        dragInput = input
+                    end
+                end)
+                game:GetService("UserInputService").InputChanged:Connect(function(input)
+                    if input == dragInput and dragToggle then
+                        updateInput(input)
+                    end
+                end)
+            end
+            dragify(script.Parent)
+            
+        end
+        local function FPOQ_fake_script() -- Fake Script: StarterGui.messagebox.Frame.cancel.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_cancel"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 3
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function GMWBUX_fake_script() -- Fake Script: StarterGui.messagebox.Frame.no.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_no"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 2
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        
+        coroutine.wrap(KWWQAE_fake_script)()
+        coroutine.wrap(XPJIE_fake_script)()
+        coroutine.wrap(OTOWUOS_fake_script)()
+        coroutine.wrap(FPOQ_fake_script)()
+        coroutine.wrap(GMWBUX_fake_script)()
+        repeat
+            task.wait()
+        until toreturn ~= nil
+        return toreturn
+    elseif style == 4 then
+        local Converted = {
+            ["_messagebox"] = Instance.new("ScreenGui");
+            ["_Frame"] = Instance.new("Frame");
+            ["_yes"] = Instance.new("TextButton");
+            ["_LocalScript"] = Instance.new("LocalScript");
+            ["_shadow"] = Instance.new("Frame");
+            ["_main"] = Instance.new("TextLabel");
+            ["_title"] = Instance.new("TextLabel");
+            ["_x"] = Instance.new("TextButton");
+            ["_LocalScript1"] = Instance.new("LocalScript");
+            ["_Dragify"] = Instance.new("LocalScript");
+            ["_no"] = Instance.new("TextButton");
+            ["_LocalScript2"] = Instance.new("LocalScript");
+        }
+        
+        
+        Converted["_messagebox"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        Converted["_messagebox"].Name = "messagebox"
+        Converted["_messagebox"].Parent = game:GetService("CoreGui")
+        
+        Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_Frame"].BorderSizePixel = 0
+        Converted["_Frame"].Position = UDim2.new(0.456591636, 0, 0.420382172, 0)
+        Converted["_Frame"].Size = UDim2.new(0, 263, 0, 163)
+        Converted["_Frame"].Parent = Converted["_messagebox"]
+        
+        Converted["_yes"].Font = Enum.Font.SourceSans
+        Converted["_yes"].Text = "Yes"
+        Converted["_yes"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_yes"].TextSize = 14
+        Converted["_yes"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_yes"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_yes"].BorderSizePixel = 2
+        Converted["_yes"].Position = UDim2.new(0.156187341, 0, 0.792376757, 0)
+        Converted["_yes"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_yes"].ZIndex = 2
+        Converted["_yes"].Name = "yes"
+        Converted["_yes"].Parent = Converted["_Frame"]
+        
+        Converted["_shadow"].BackgroundColor3 = Color3.fromRGB(240.0000160932541, 240.0000160932541, 240.0000160932541)
+        Converted["_shadow"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_shadow"].BorderSizePixel = 0
+        Converted["_shadow"].Position = UDim2.new(0, 0, 0.736196339, 0)
+        Converted["_shadow"].Size = UDim2.new(0, 262, 0, 43)
+        Converted["_shadow"].Name = "shadow"
+        Converted["_shadow"].Parent = Converted["_Frame"]
+        
+        Converted["_main"].Font = Enum.Font.SourceSans
+        Converted["_main"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].TextSize = 14
+        Converted["_main"].Text = text
+        Converted["_main"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_main"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].BorderSizePixel = 0
+        Converted["_main"].Position = UDim2.new(0.434926301, 0, 0.257668704, 0)
+        Converted["_main"].Size = UDim2.new(0, 48, 0, 50)
+        Converted["_main"].Name = "main"
+        Converted["_main"].Parent = Converted["_Frame"]
+        
+        Converted["_title"].Font = Enum.Font.SourceSans
+        Converted["_title"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].TextSize = 14
+        Converted["_title"].Text = caption
+        Converted["_title"].TextXAlignment = Enum.TextXAlignment.Left
+        Converted["_title"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_title"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].BorderSizePixel = 0
+        Converted["_title"].Size = UDim2.new(0, 230, 0, 33)
+        Converted["_title"].Name = "title"
+        Converted["_title"].Parent = Converted["_Frame"]
+        
+        Converted["_x"].Font = Enum.Font.SourceSans
+        Converted["_x"].Text = "X"
+        Converted["_x"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].TextSize = 14
+        Converted["_x"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_x"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].BorderSizePixel = 0
+        Converted["_x"].Position = UDim2.new(0.878302157, 0, 0, 0)
+        Converted["_x"].Size = UDim2.new(0, 32, 0, 26)
+        Converted["_x"].Name = "x"
+        Converted["_x"].Parent = Converted["_Frame"]
+        
+        Converted["_no"].Font = Enum.Font.SourceSans
+        Converted["_no"].Text = "No"
+        Converted["_no"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_no"].TextSize = 14
+        Converted["_no"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_no"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_no"].BorderSizePixel = 2
+        Converted["_no"].Position = UDim2.new(0.593449712, 0, 0.792376757, 0)
+        Converted["_no"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_no"].ZIndex = 2
+        Converted["_no"].Name = "no"
+        Converted["_no"].Parent = Converted["_Frame"]
+        
+        
+        local fake_module_scripts = {}
+        
+        local toreturn = nil
+        
+        local function AAEXTH_fake_script() -- Fake Script: StarterGui.messagebox.Frame.yes.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_yes"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 1
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function EAXIAEM_fake_script() -- Fake Script: StarterGui.messagebox.Frame.x.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_x"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function SSBNBX_fake_script() -- Fake Script: StarterGui.messagebox.Frame.Dragify
+            local script = Instance.new("LocalScript")
+            script.Name = "Dragify"
+            script.Parent = Converted["_Frame"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            local UIS = game:GetService("UserInputService")
+            function dragify(Frame)
+                dragToggle = nil
+                dragSpeed = 0.15
+                dragInput = nil
+                dragStart = nil
+                dragPos = nil
+                function updateInput(input)
+                    Delta = input.Position - dragStart
+                    Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
+                    game:GetService("TweenService"):Create(Frame, TweenInfo.new(0.15), {Position = Position}):Play()
+                end
+                Frame.InputBegan:Connect(function(input)
+                    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and UIS:GetFocusedTextBox() == nil then
+                        dragToggle = true
+                        dragStart = input.Position
+                        startPos = Frame.Position
+                        input.Changed:Connect(function()
+                            if input.UserInputState == Enum.UserInputState.End then
+                                dragToggle = false
+                            end
+                        end)
+                    end
+                end)
+                Frame.InputChanged:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                        dragInput = input
+                    end
+                end)
+                game:GetService("UserInputService").InputChanged:Connect(function(input)
+                    if input == dragInput and dragToggle then
+                        updateInput(input)
+                    end
+                end)
+            end
+            dragify(script.Parent)
+            
+        end
+        local function HDLYUB_fake_script() -- Fake Script: StarterGui.messagebox.Frame.no.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_no"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 2
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        
+        coroutine.wrap(AAEXTH_fake_script)()
+        coroutine.wrap(EAXIAEM_fake_script)()
+        coroutine.wrap(SSBNBX_fake_script)()
+        coroutine.wrap(HDLYUB_fake_script)()
+        repeat
+            task.wait()
+        until toreturn ~= nil
+        return toreturn
+    elseif style == 5 then
+        local Converted = {
+            ["_messagebox"] = Instance.new("ScreenGui");
+            ["_Frame"] = Instance.new("Frame");
+            ["_retry"] = Instance.new("TextButton");
+            ["_LocalScript"] = Instance.new("LocalScript");
+            ["_shadow"] = Instance.new("Frame");
+            ["_main"] = Instance.new("TextLabel");
+            ["_title"] = Instance.new("TextLabel");
+            ["_x"] = Instance.new("TextButton");
+            ["_LocalScript1"] = Instance.new("LocalScript");
+            ["_Dragify"] = Instance.new("LocalScript");
+            ["_cancel"] = Instance.new("TextButton");
+            ["_LocalScript2"] = Instance.new("LocalScript");
+        }
+        
+        Converted["_messagebox"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        Converted["_messagebox"].Name = "messagebox"
+        Converted["_messagebox"].Parent = game:GetService("CoreGui")
+        
+        Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_Frame"].BorderSizePixel = 0
+        Converted["_Frame"].Position = UDim2.new(0.456591636, 0, 0.420382172, 0)
+        Converted["_Frame"].Size = UDim2.new(0, 263, 0, 163)
+        Converted["_Frame"].Parent = Converted["_messagebox"]
+        
+        Converted["_retry"].Font = Enum.Font.SourceSans
+        Converted["_retry"].Text = "Retry"
+        Converted["_retry"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_retry"].TextSize = 14
+        Converted["_retry"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_retry"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_retry"].BorderSizePixel = 2
+        Converted["_retry"].Position = UDim2.new(0.156187341, 0, 0.792376757, 0)
+        Converted["_retry"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_retry"].ZIndex = 2
+        Converted["_retry"].Name = "retry"
+        Converted["_retry"].Parent = Converted["_Frame"]
+        
+        Converted["_shadow"].BackgroundColor3 = Color3.fromRGB(240.0000160932541, 240.0000160932541, 240.0000160932541)
+        Converted["_shadow"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_shadow"].BorderSizePixel = 0
+        Converted["_shadow"].Position = UDim2.new(0, 0, 0.736196339, 0)
+        Converted["_shadow"].Size = UDim2.new(0, 262, 0, 43)
+        Converted["_shadow"].Name = "shadow"
+        Converted["_shadow"].Parent = Converted["_Frame"]
+        
+        Converted["_main"].Font = Enum.Font.SourceSans
+        Converted["_main"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].TextSize = 14
+        Converted["_main"].Text = text
+        Converted["_main"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_main"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].BorderSizePixel = 0
+        Converted["_main"].Position = UDim2.new(0.434926301, 0, 0.257668704, 0)
+        Converted["_main"].Size = UDim2.new(0, 48, 0, 50)
+        Converted["_main"].Name = "main"
+        Converted["_main"].Parent = Converted["_Frame"]
+        
+        Converted["_title"].Font = Enum.Font.SourceSans
+        Converted["_title"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].TextSize = 14
+        Converted["_title"].Text = caption
+        Converted["_title"].TextXAlignment = Enum.TextXAlignment.Left
+        Converted["_title"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_title"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].BorderSizePixel = 0
+        Converted["_title"].Size = UDim2.new(0, 230, 0, 33)
+        Converted["_title"].Name = "title"
+        Converted["_title"].Parent = Converted["_Frame"]
+        
+        Converted["_x"].Font = Enum.Font.SourceSans
+        Converted["_x"].Text = "X"
+        Converted["_x"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].TextSize = 14
+        Converted["_x"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_x"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].BorderSizePixel = 0
+        Converted["_x"].Position = UDim2.new(0.878302157, 0, 0, 0)
+        Converted["_x"].Size = UDim2.new(0, 32, 0, 26)
+        Converted["_x"].Name = "x"
+        Converted["_x"].Parent = Converted["_Frame"]
+        
+        Converted["_cancel"].Font = Enum.Font.SourceSans
+        Converted["_cancel"].Text = "Cancel"
+        Converted["_cancel"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_cancel"].TextSize = 14
+        Converted["_cancel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_cancel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_cancel"].BorderSizePixel = 2
+        Converted["_cancel"].Position = UDim2.new(0.593449712, 0, 0.792376757, 0)
+        Converted["_cancel"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_cancel"].ZIndex = 2
+        Converted["_cancel"].Name = "cancel"
+        Converted["_cancel"].Parent = Converted["_Frame"]
+        
+        local fake_module_scripts = {}
+        
+        local toreturn = nil
+        
+        local function SIYHBZ_fake_script() -- Fake Script: StarterGui.messagebox.Frame.retry.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_retry"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 1
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function YCWE_fake_script() -- Fake Script: StarterGui.messagebox.Frame.x.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_x"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function JZCHVUC_fake_script() -- Fake Script: StarterGui.messagebox.Frame.Dragify
+            local script = Instance.new("LocalScript")
+            script.Name = "Dragify"
+            script.Parent = Converted["_Frame"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            local UIS = game:GetService("UserInputService")
+            function dragify(Frame)
+                dragToggle = nil
+                dragSpeed = 0.15
+                dragInput = nil
+                dragStart = nil
+                dragPos = nil
+                function updateInput(input)
+                    Delta = input.Position - dragStart
+                    Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
+                    game:GetService("TweenService"):Create(Frame, TweenInfo.new(0.15), {Position = Position}):Play()
+                end
+                Frame.InputBegan:Connect(function(input)
+                    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and UIS:GetFocusedTextBox() == nil then
+                        dragToggle = true
+                        dragStart = input.Position
+                        startPos = Frame.Position
+                        input.Changed:Connect(function()
+                            if input.UserInputState == Enum.UserInputState.End then
+                                dragToggle = false
+                            end
+                        end)
+                    end
+                end)
+                Frame.InputChanged:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                        dragInput = input
+                    end
+                end)
+                game:GetService("UserInputService").InputChanged:Connect(function(input)
+                    if input == dragInput and dragToggle then
+                        updateInput(input)
+                    end
+                end)
+            end
+            dragify(script.Parent)
+            
+        end
+        local function RSMXOX_fake_script() -- Fake Script: StarterGui.messagebox.Frame.cancel.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_cancel"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 2
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        
+        coroutine.wrap(SIYHBZ_fake_script)()
+        coroutine.wrap(YCWE_fake_script)()
+        coroutine.wrap(JZCHVUC_fake_script)()
+        coroutine.wrap(RSMXOX_fake_script)()
+        repeat
+            task.wait()
+        until toreturn ~= nil
+        return toreturn
+    elseif style == 6 then
+        local Converted = {
+            ["_messagebox"] = Instance.new("ScreenGui");
+            ["_Frame"] = Instance.new("Frame");
+            ["_cancel"] = Instance.new("TextButton");
+            ["_LocalScript"] = Instance.new("LocalScript");
+            ["_shadow"] = Instance.new("Frame");
+            ["_main"] = Instance.new("TextLabel");
+            ["_title"] = Instance.new("TextLabel");
+            ["_x"] = Instance.new("TextButton");
+            ["_LocalScript1"] = Instance.new("LocalScript");
+            ["_Dragify"] = Instance.new("LocalScript");
+            ["_try"] = Instance.new("TextButton");
+            ["_LocalScript2"] = Instance.new("LocalScript");
+            ["_continue"] = Instance.new("TextButton");
+            ["_LocalScript3"] = Instance.new("LocalScript");
+        }
+        
+        
+        Converted["_messagebox"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        Converted["_messagebox"].Name = "messagebox"
+        Converted["_messagebox"].Parent = game:GetService("CoreGui")
+        
+        Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_Frame"].BorderSizePixel = 0
+        Converted["_Frame"].Position = UDim2.new(0.456591636, 0, 0.420382172, 0)
+        Converted["_Frame"].Size = UDim2.new(0, 263, 0, 163)
+        Converted["_Frame"].Parent = Converted["_messagebox"]
+        
+        Converted["_cancel"].Font = Enum.Font.SourceSans
+        Converted["_cancel"].Text = "Cancel"
+        Converted["_cancel"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_cancel"].TextSize = 14
+        Converted["_cancel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_cancel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_cancel"].BorderSizePixel = 2
+        Converted["_cancel"].Position = UDim2.new(0.0421188995, 0, 0.792376757, 0)
+        Converted["_cancel"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_cancel"].ZIndex = 2
+        Converted["_cancel"].Name = "cancel"
+        Converted["_cancel"].Parent = Converted["_Frame"]
+        
+        Converted["_shadow"].BackgroundColor3 = Color3.fromRGB(240.0000160932541, 240.0000160932541, 240.0000160932541)
+        Converted["_shadow"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_shadow"].BorderSizePixel = 0
+        Converted["_shadow"].Position = UDim2.new(0, 0, 0.736196339, 0)
+        Converted["_shadow"].Size = UDim2.new(0, 262, 0, 43)
+        Converted["_shadow"].Name = "shadow"
+        Converted["_shadow"].Parent = Converted["_Frame"]
+        
+        Converted["_main"].Font = Enum.Font.SourceSans
+        Converted["_main"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].TextSize = 14
+        Converted["_main"].Text = text
+        Converted["_main"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_main"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_main"].BorderSizePixel = 0
+        Converted["_main"].Position = UDim2.new(0.434926301, 0, 0.257668704, 0)
+        Converted["_main"].Size = UDim2.new(0, 48, 0, 50)
+        Converted["_main"].Name = "main"
+        Converted["_main"].Parent = Converted["_Frame"]
+        
+        Converted["_title"].Font = Enum.Font.SourceSans
+        Converted["_title"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].TextSize = 14
+        Converted["_title"].Text = caption
+        Converted["_title"].TextXAlignment = Enum.TextXAlignment.Left
+        Converted["_title"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_title"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_title"].BorderSizePixel = 0
+        Converted["_title"].Size = UDim2.new(0, 230, 0, 33)
+        Converted["_title"].Name = "title"
+        Converted["_title"].Parent = Converted["_Frame"]
+        
+        Converted["_x"].Font = Enum.Font.SourceSans
+        Converted["_x"].Text = "X"
+        Converted["_x"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].TextSize = 14
+        Converted["_x"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_x"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_x"].BorderSizePixel = 0
+        Converted["_x"].Position = UDim2.new(0.878302157, 0, 0, 0)
+        Converted["_x"].Size = UDim2.new(0, 32, 0, 26)
+        Converted["_x"].Name = "x"
+        Converted["_x"].Parent = Converted["_Frame"]
+        
+        Converted["_try"].Font = Enum.Font.SourceSans
+        Converted["_try"].Text = "Try Again"
+        Converted["_try"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_try"].TextSize = 14
+        Converted["_try"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_try"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_try"].BorderSizePixel = 2
+        Converted["_try"].Position = UDim2.new(0.357708246, 0, 0.792376757, 0)
+        Converted["_try"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_try"].ZIndex = 2
+        Converted["_try"].Name = "try"
+        Converted["_try"].Parent = Converted["_Frame"]
+        
+        Converted["_continue"].Font = Enum.Font.SourceSans
+        Converted["_continue"].Text = "Continue"
+        Converted["_continue"].TextColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_continue"].TextSize = 14
+        Converted["_continue"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Converted["_continue"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+        Converted["_continue"].BorderSizePixel = 2
+        Converted["_continue"].Position = UDim2.new(0.684704423, 0, 0.792376757, 0)
+        Converted["_continue"].Size = UDim2.new(0, 73, 0, 23)
+        Converted["_continue"].ZIndex = 2
+        Converted["_continue"].Name = "continue"
+        Converted["_continue"].Parent = Converted["_Frame"]
+        
+        local fake_module_scripts = {}
+        
+        local toreturn = nil
+
+        local function LCBJCC_fake_script() -- Fake Script: StarterGui.messagebox.Frame.cancel.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_cancel"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 1
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function PRRFB_fake_script() -- Fake Script: StarterGui.messagebox.Frame.x.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_x"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function UVGH_fake_script() -- Fake Script: StarterGui.messagebox.Frame.Dragify
+            local script = Instance.new("LocalScript")
+            script.Name = "Dragify"
+            script.Parent = Converted["_Frame"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            local UIS = game:GetService("UserInputService")
+            function dragify(Frame)
+                dragToggle = nil
+                dragSpeed = 0.15
+                dragInput = nil
+                dragStart = nil
+                dragPos = nil
+                function updateInput(input)
+                    Delta = input.Position - dragStart
+                    Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
+                    game:GetService("TweenService"):Create(Frame, TweenInfo.new(0.15), {Position = Position}):Play()
+                end
+                Frame.InputBegan:Connect(function(input)
+                    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and UIS:GetFocusedTextBox() == nil then
+                        dragToggle = true
+                        dragStart = input.Position
+                        startPos = Frame.Position
+                        input.Changed:Connect(function()
+                            if input.UserInputState == Enum.UserInputState.End then
+                                dragToggle = false
+                            end
+                        end)
+                    end
+                end)
+                Frame.InputChanged:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                        dragInput = input
+                    end
+                end)
+                game:GetService("UserInputService").InputChanged:Connect(function(input)
+                    if input == dragInput and dragToggle then
+                        updateInput(input)
+                    end
+                end)
+            end
+            dragify(script.Parent)
+            
+        end
+        local function IUOJ_fake_script() -- Fake Script: StarterGui.messagebox.Frame.try.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_try"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 2
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        local function ELHCM_fake_script() -- Fake Script: StarterGui.messagebox.Frame.continue.LocalScript
+            local script = Instance.new("LocalScript")
+            script.Name = "LocalScript"
+            script.Parent = Converted["_continue"]
+            local req = require
+            local require = function(obj)
+                local fake = fake_module_scripts[obj]
+                if fake then
+                    return fake()
+                end
+                return req(obj)
+            end
+        
+            script.Parent.MouseButton1Down:Connect(function()
+                toreturn = 3
+                script.Parent.Parent.Parent:Destroy()
+            end)
+        end
+        
+        coroutine.wrap(LCBJCC_fake_script)()
+        coroutine.wrap(PRRFB_fake_script)()
+        coroutine.wrap(UVGH_fake_script)()
+        coroutine.wrap(IUOJ_fake_script)()
+        coroutine.wrap(ELHCM_fake_script)()
+        repeat
+            task.wait()
+        until toreturn ~= nil
+        return toreturn
+    end
+end
+-- creds to vxsty
+getgenv().mouse1click = function(x, y)
+	local vim = game:GetService('VirtualInputManager');
+    x = x or 0
+	y = y or 0
+	vim:SendMouseButtonEvent(x, y, 0, true, game, false)
+	task.wait()
+	vim:SendMouseButtonEvent(x, y, 0, false, game, false)
+end
+getgenv().mouse2click = function(x, y)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	vim:SendMouseButtonEvent(x, y, 1, true, game, false)
+	task.wait()
+	vim:SendMouseButtonEvent(x, y, 1, false, game, false)
+end
+getgenv().mouse1press = function(x, y)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	vim:SendMouseButtonEvent(x, y, 0, true, game, false)
+end
+getgenv().mouse1release = function(x, y)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	vim:SendMouseButtonEvent(x, y, 0, false, game, false)
+end
+getgenv().mouse2press = function(x, y)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	vim:SendMouseButtonEvent(x, y, 1, true, game, false)
+end
+getgenv().mouse2release = function(x, y)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	vim:SendMouseButtonEvent(x, y, 1, false, game, false)
+end
+getgenv().mousescroll = function(x, y, a)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	a = a and true or false
+	vim:SendMouseWheelEvent(x, y, a, game)
+end
+getgenv().newcclosure = function(func)
+    local tab = getgenv()
+    getgenv()[#tab+1] = func
+end
+getgenv().rconsoletablerem = {}
+local par = game:GetService("CoreGui")
+getgenv().rconsolecreate = function(text, color)
+	if not par:FindFirstChild("rconsole") then
+		getgenv().rconsoletablerem = {}
+		getgenv().rconsoleConverted = {
+			["_rconsole"] = Instance.new("ScreenGui");
+			["_Frame"] = Instance.new("Frame");
+			["_min"] = Instance.new("TextButton");
+			["_LocalScript"] = Instance.new("LocalScript");
+			["_TextBox"] = Instance.new("TextBox");
+			["_max1"] = Instance.new("TextButton");
+			["_max2"] = Instance.new("TextButton");
+			["_max3"] = Instance.new("TextButton");
+			["_max4"] = Instance.new("TextButton");
+			["_close"] = Instance.new("TextButton");
+			["_closescript"] = Instance.new("LocalScript");
+			["_TextLabel"] = Instance.new("TextLabel");
+			["_Dragify"] = Instance.new("LocalScript");
+			["_LocalScript1"] = Instance.new("LocalScript");
+		}
+	end
+	getgenv().rconsoleConverted["_rconsole"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	getgenv().rconsoleConverted["_rconsole"].Name = "rconsole"
+	getgenv().rconsoleConverted["_rconsole"].Parent = par
+
+	getgenv().rconsoleConverted["_Frame"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	getgenv().rconsoleConverted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+	getgenv().rconsoleConverted["_Frame"].BorderSizePixel = 0
+	if not par:FindFirstChild("rconsole") then
+		getgenv().rconsoleConverted["_Frame"].Position = UDim2.new(0.36141479, 0, 0.332802534, 0)
+	else
+		getgenv().rconsoleConverted["_Frame"].Position = getgenv().rconsoleConverted["_Frame"].Position
+	end
+	getgenv().rconsoleConverted["_Frame"].Size = UDim2.new(0, 694, 0, 294)
+	getgenv().rconsoleConverted["_Frame"].Parent = getgenv().rconsoleConverted["_rconsole"]
+	getgenv().rconsoleConverted["_min"].Font = Enum.Font.SourceSans
+	getgenv().rconsoleConverted["_min"].Text = "-"
+	getgenv().rconsoleConverted["_min"].TextColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_min"].TextSize = 72
+	getgenv().rconsoleConverted["_min"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_min"].BackgroundTransparency = 1
+	getgenv().rconsoleConverted["_min"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+	getgenv().rconsoleConverted["_min"].BorderSizePixel = 0
+	getgenv().rconsoleConverted["_min"].Position = UDim2.new(0.877521634, 0, -0.0510204099, 0)
+	getgenv().rconsoleConverted["_min"].Size = UDim2.new(0, 15, 0, 50)
+	getgenv().rconsoleConverted["_min"].Name = "min"
+	getgenv().rconsoleConverted["_min"].Parent = getgenv().rconsoleConverted["_Frame"]
+
+	getgenv().rconsoleConverted["_TextBox"].CursorPosition = -1
+	getgenv().rconsoleConverted["_TextBox"].ClearTextOnFocus = false
+	getgenv().rconsoleConverted["_TextBox"].Font = Enum.Font.SourceSans
+	getgenv().rconsoleConverted["_TextBox"].RichText = true
+	getgenv().rconsoleConverted["_TextBox"].Text = ""
+	getgenv().rconsoleConverted["_TextBox"].TextColor3 = Color3.fromRGB(204.0000182390213, 204.0000182390213, 204.0000182390213) -- nah
+	getgenv().rconsoleConverted["_TextBox"].TextDirection = Enum.TextDirection.RightToLeft
+	getgenv().rconsoleConverted["_TextBox"].TextEditable = false
+	getgenv().rconsoleConverted["_TextBox"].TextSize = 14
+	getgenv().rconsoleConverted["_TextBox"].TextWrapped = true
+	getgenv().rconsoleConverted["_TextBox"].TextXAlignment = Enum.TextXAlignment.Left
+	getgenv().rconsoleConverted["_TextBox"].TextYAlignment = Enum.TextYAlignment.Top
+	getgenv().rconsoleConverted["_TextBox"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_TextBox"].BackgroundTransparency = 1
+	getgenv().rconsoleConverted["_TextBox"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+	getgenv().rconsoleConverted["_TextBox"].BorderSizePixel = 0
+	getgenv().rconsoleConverted["_TextBox"].Position = UDim2.new(0, 0, 0.119047619, 0)
+	getgenv().rconsoleConverted["_TextBox"].Size = UDim2.new(0, 694, 0, 259)
+	getgenv().rconsoleConverted["_TextBox"].Parent = getgenv().rconsoleConverted["_Frame"]
+
+	getgenv().rconsoleConverted["_max1"].Font = Enum.Font.SourceSans
+	getgenv().rconsoleConverted["_max1"].Text = "-"
+	getgenv().rconsoleConverted["_max1"].TextColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_max1"].TextSize = 72
+	getgenv().rconsoleConverted["_max1"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_max1"].BackgroundTransparency = 1
+	getgenv().rconsoleConverted["_max1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+	getgenv().rconsoleConverted["_max1"].BorderSizePixel = 0
+	getgenv().rconsoleConverted["_max1"].Position = UDim2.new(0.793982983, 0, 0.0546244942, 0)
+	getgenv().rconsoleConverted["_max1"].Rotation = -90
+	getgenv().rconsoleConverted["_max1"].Size = UDim2.new(0, 200, 0, 0)
+	getgenv().rconsoleConverted["_max1"].Name = "max1"
+	getgenv().rconsoleConverted["_max1"].Parent = getgenv().rconsoleConverted["_Frame"]
+
+	getgenv().rconsoleConverted["_max2"].Font = Enum.Font.SourceSans
+	getgenv().rconsoleConverted["_max2"].Text = "-"
+	getgenv().rconsoleConverted["_max2"].TextColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_max2"].TextSize = 72
+	getgenv().rconsoleConverted["_max2"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_max2"].BackgroundTransparency = 1
+	getgenv().rconsoleConverted["_max2"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+	getgenv().rconsoleConverted["_max2"].BorderSizePixel = 0
+	getgenv().rconsoleConverted["_max2"].Position = UDim2.new(0.775181472, 0, 0.0546244942, 0)
+	getgenv().rconsoleConverted["_max2"].Rotation = -90
+	getgenv().rconsoleConverted["_max2"].Size = UDim2.new(0, 200, 0, 0)
+	getgenv().rconsoleConverted["_max2"].Name = "max2"
+	getgenv().rconsoleConverted["_max2"].Parent = getgenv().rconsoleConverted["_Frame"]
+
+	getgenv().rconsoleConverted["_max3"].Font = Enum.Font.SourceSans
+	getgenv().rconsoleConverted["_max3"].Text = "-"
+	getgenv().rconsoleConverted["_max3"].TextColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_max3"].TextSize = 72
+	getgenv().rconsoleConverted["_max3"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_max3"].BackgroundTransparency = 1
+	getgenv().rconsoleConverted["_max3"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+	getgenv().rconsoleConverted["_max3"].BorderSizePixel = 0
+	getgenv().rconsoleConverted["_max3"].Position = UDim2.new(0.937443197, 0, -0.0748299286, 0)
+	getgenv().rconsoleConverted["_max3"].Size = UDim2.new(0, 0, 0, 50)
+	getgenv().rconsoleConverted["_max3"].Name = "max3"
+	getgenv().rconsoleConverted["_max3"].Parent = getgenv().rconsoleConverted["_Frame"]
+
+	getgenv().rconsoleConverted["_max4"].Font = Enum.Font.SourceSans
+	getgenv().rconsoleConverted["_max4"].Text = "-"
+	getgenv().rconsoleConverted["_max4"].TextColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_max4"].TextSize = 72
+	getgenv().rconsoleConverted["_max4"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_max4"].BackgroundTransparency = 1
+	getgenv().rconsoleConverted["_max4"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+	getgenv().rconsoleConverted["_max4"].BorderSizePixel = 0
+	getgenv().rconsoleConverted["_max4"].Position = UDim2.new(0.937443197, 0, -0.0306122452, 0)
+	getgenv().rconsoleConverted["_max4"].Size = UDim2.new(0, 2, 0, 50)
+	getgenv().rconsoleConverted["_max4"].Name = "max4"
+	getgenv().rconsoleConverted["_max4"].Parent = getgenv().rconsoleConverted["_Frame"]
+
+	getgenv().rconsoleConverted["_close"].Font = Enum.Font.SourceSans
+	getgenv().rconsoleConverted["_close"].Text = "X"
+	getgenv().rconsoleConverted["_close"].TextColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_close"].TextSize = 27
+	getgenv().rconsoleConverted["_close"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_close"].BackgroundTransparency = 1
+	getgenv().rconsoleConverted["_close"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+	getgenv().rconsoleConverted["_close"].BorderSizePixel = 0
+	getgenv().rconsoleConverted["_close"].Position = UDim2.new(0.962536037, 0, 0, 0)
+	getgenv().rconsoleConverted["_close"].Size = UDim2.new(0, 26, 0, 35)
+	getgenv().rconsoleConverted["_close"].Name = "close"
+	getgenv().rconsoleConverted["_close"].Parent = getgenv().rconsoleConverted["_Frame"]
+
+	getgenv().rconsoleConverted["_TextLabel"].Font = Enum.Font.SourceSans
+	getgenv().rconsoleConverted["_TextLabel"].RichText = true
+	getgenv().rconsoleConverted["_TextLabel"].Text = ""
+	getgenv().rconsoleConverted["_TextLabel"].TextColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_TextLabel"].TextScaled = true
+	getgenv().rconsoleConverted["_TextLabel"].TextSize = 14
+	getgenv().rconsoleConverted["_TextLabel"].TextWrapped = true
+	getgenv().rconsoleConverted["_TextLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	getgenv().rconsoleConverted["_TextLabel"].BackgroundTransparency = 1
+	getgenv().rconsoleConverted["_TextLabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+	getgenv().rconsoleConverted["_TextLabel"].BorderSizePixel = 0
+	getgenv().rconsoleConverted["_TextLabel"].Size = UDim2.new(0, 609, 0, 42)
+	getgenv().rconsoleConverted["_TextLabel"].Parent = getgenv().rconsoleConverted["_Frame"]
+
+
+	local fake_module_scripts = {}
+
+	local function BDYORWU_fake_script() -- Fake Script: StarterGui.rconsole.Frame.min.LocalScript
+		local script = Instance.new("LocalScript")
+		script.Name = "LocalScript"
+		script.Parent = getgenv().rconsoleConverted["_min"]
+		local req = require
+		local require = function(obj)
+			local fake = fake_module_scripts[obj]
+			if fake then
+				return fake()
+			end
+			return req(obj)
+		end
+
+		script.Parent.MouseButton1Down:Connect(function()
+			script.Parent.Parent.Visible = false
+		end)
+	end
+	local function FOWXFT_fake_script() -- Fake Script: StarterGui.rconsole.Frame.close.closescript
+		local script = Instance.new("LocalScript")
+		script.Name = "closescript"
+		script.Parent = getgenv().rconsoleConverted["_close"]
+		local req = require
+		local require = function(obj)
+			local fake = fake_module_scripts[obj]
+			if fake then
+				return fake()
+			end
+			return req(obj)
+		end
+
+		script.Parent.MouseButton1Down:Connect(function()
+			script.Parent.Parent.Parent:Destroy()
+		end)
+	end
+	local function JLOCYX_fake_script() -- Fake Script: StarterGui.rconsole.Frame.Dragify
+		local script = Instance.new("LocalScript")
+		script.Name = "Dragify"
+		script.Parent = getgenv().rconsoleConverted["_Frame"]
+		local req = require
+		local require = function(obj)
+			local fake = fake_module_scripts[obj]
+			if fake then
+				return fake()
+			end
+			return req(obj)
+		end
+
+		local UIS = game:GetService("UserInputService")
+		function dragify(Frame)
+			dragToggle = nil
+			dragSpeed = 0.15
+			dragInput = nil
+			dragStart = nil
+			dragPos = nil
+			function updateInput(input)
+				Delta = input.Position - dragStart
+				Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
+				game:GetService("TweenService"):Create(Frame, TweenInfo.new(0.15), {
+					Position = Position
+				}):Play()
+			end
+			Frame.InputBegan:Connect(function(input)
+				if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and UIS:GetFocusedTextBox() == nil then
+					dragToggle = true
+					dragStart = input.Position
+					startPos = Frame.Position
+					input.Changed:Connect(function()
+						if input.UserInputState == Enum.UserInputState.End then
+							dragToggle = false
+						end
+					end)
+				end
+			end)
+			Frame.InputChanged:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+					dragInput = input
+				end
+			end)
+			game:GetService("UserInputService").InputChanged:Connect(function(input)
+				if input == dragInput and dragToggle then
+					updateInput(input)
+				end
+			end)
+		end
+		dragify(script.Parent)
+
+	end
+	local function OOBMK_fake_script() -- Fake Script: StarterGui.rconsole.LocalScript
+		local script = Instance.new("LocalScript")
+		script.Name = "LocalScript"
+		script.Parent = getgenv().rconsoleConverted["_rconsole"]
+		local req = require
+		local require = function(obj)
+			local fake = fake_module_scripts[obj]
+			if fake then
+				return fake()
+			end
+			return req(obj)
+		end
+
+		local uis = game:GetService("UserInputService")
+		uis.InputBegan:Connect(function(inp)
+			if inp.KeyCode == Enum.KeyCode.RightControl then
+				script.Parent.Frame.Visible = not script.Parent.Frame.Visible
+			end
+		end)
+	end
+
+	coroutine.wrap(BDYORWU_fake_script)()
+	coroutine.wrap(FOWXFT_fake_script)()
+	coroutine.wrap(JLOCYX_fake_script)()
+	coroutine.wrap(OOBMK_fake_script)()
+end
+getgenv().rconsoleclear = function()
+	if not par:FindFirstChild("rconsole") then
+		error("No Console Found.")
+	else
+		getgenv().rconsoleConverted["_TextBox"].Text = ""
+		getgenv().rconsoletablerem = {}
+		makeonestring = ""
+	end
+end
+getgenv().rconsoleprint = function(text, color)
+	text = text .. "\n"
+	if not par:FindFirstChild("rconsole") then
+		rconsolecreate()
+		task.wait(0.25)
+		table.insert(getgenv().rconsoletablerem, text)
+		makeonestring = table.concat(getgenv().rconsoletablerem, "")
+		getgenv().rconsoleConverted["_TextBox"].Text = makeonestring
+	else
+		table.insert(getgenv().rconsoletablerem, text)
+		makeonestring = table.concat(getgenv().rconsoletablerem, "")
+		getgenv().rconsoleConverted["_TextBox"].Text = makeonestring
+		if getgenv().rconsoleConverted["_TextBox"].TextColor3 ~= Color3.fromRGB(204.0000182390213, 204.0000182390213, 204.0000182390213) then
+			getgenv().rconsoleConverted["_TextBox"].TextColor3 = Color3.fromRGB(204.0000182390213, 204.0000182390213, 204.0000182390213)
+		end
+	end
+end
+getgenv().rconsoleerr = function(text, color)
+	text = text .. "\n"
+	if not par:FindFirstChild("rconsole") then
+		rconsolecreate()
+		task.wait(0.25)
+		table.insert(getgenv().rconsoletablerem, text)
+		makeonestring = table.concat(getgenv().rconsoletablerem, "")
+		getgenv().rconsoleConverted["_TextBox"].Text = makeonestring
+		getgenv().rconsoleConverted["_TextBox"].TextColor3 = Color3.fromRGB(255, 0, 0)
+	else
+		table.insert(getgenv().rconsoletablerem, text)
+		makeonestring = table.concat(getgenv().rconsoletablerem, "")
+		getgenv().rconsoleConverted["_TextBox"].Text = makeonestring
+		getgenv().rconsoleConverted["_TextBox"].TextColor3 = Color3.fromRGB(255, 0, 0)
+	end
+end
+getgenv().rconsoleinfo = function(text, color)
+	text = text .. "\n"
+	if not par:FindFirstChild("rconsole") then
+		rconsolecreate()
+		task.wait(0.25)
+		table.insert(getgenv().rconsoletablerem, text)
+		makeonestring = table.concat(getgenv().rconsoletablerem, "")
+		getgenv().rconsoleConverted["_TextBox"].Text = makeonestring
+		getgenv().rconsoleConverted["_TextBox"].TextColor3 = Color3.fromRGB(0, 204, 255)
+	else
+		table.insert(getgenv().rconsoletablerem, text)
+		makeonestring = table.concat(getgenv().rconsoletablerem, "")
+		getgenv().rconsoleConverted["_TextBox"].Text = makeonestring
+		getgenv().rconsoleConverted["_TextBox"].TextColor3 = Color3.fromRGB(0, 204, 255)
+	end
+end
+getgenv().rconsolewarn = function(text, color)
+	text = text .. "\n"
+	if not par:FindFirstChild("rconsole") then
+		rconsolecreate()
+		task.wait(0.25)
+		table.insert(getgenv().rconsoletablerem, text)
+		makeonestring = table.concat(getgenv().rconsoletablerem, "")
+		getgenv().rconsoleConverted["_TextBox"].Text = makeonestring
+		getgenv().rconsoleConverted["_TextBox"].TextColor3 = Color3.fromRGB(238, 255, 0)
+	else
+		table.insert(getgenv().rconsoletablerem, text)
+		makeonestring = table.concat(getgenv().rconsoletablerem, "")
+		getgenv().rconsoleConverted["_TextBox"].Text = makeonestring
+		getgenv().rconsoleConverted["_TextBox"].TextColor3 = Color3.fromRGB(238, 255, 0)
+	end
+end
+getgenv().rconsoledestroy = function()
+	if not par:FindFirstChild("rconsole") then
+		error("No Console Found.")
+	else
+		par:FindFirstChild("rconsole"):Destroy()
+	end
+end
+getgenv().rconsolesettitle = function(text)
+	if not par:FindFirstChild("rconsole") then
+		rconsolecreate()
+		task.wait(0.25)
+		getgenv().rconsoleConverted["_TextLabel"].Text = text
+	else
+		getgenv().rconsoleConverted["_TextLabel"].Text = text
+	end
+end
+getgenv().rconsolename = function(text)
+	if not par:FindFirstChild("rconsole") then
+		rconsolecreate()
+		task.wait(0.25)
+		getgenv().rconsoleConverted["_TextLabel"].Text = text
+	else
+		getgenv().rconsoleConverted["_TextLabel"].Text = text
+	end
+end
+getgenv().rconsoleinput = function()
+	if not par:FindFirstChild("rconsole") then
+		error("No Console Found.")
+	else
+		getgenv().rconsoleConverted["_TextBox"].TextEditable = true
+		getgenv().rconsoleConverted["_TextBox"].Text = ""
+		local toreturn = nil
+		getgenv().rconsoleConverted["_TextBox"].InputEnded:Connect(function(inp)
+			if inp.KeyCode == Enum.KeyCode.Return then
+				toreturn = getgenv().rconsoleConverted["_TextBox"].Text
+				getgenv().rconsoleConverted["_TextBox"].Text = ""
+				getgenv().rconsoleConverted["_TextBox"].TextEditable = false
+			end
+		end)
+		local prev = getgenv().rconsoletablerem
+		makeonestring = table.concat(prev, "")
+		getgenv().rconsoleConverted["_TextBox"].Text = makeonestring .. string.gsub(getgenv().rconsoleConverted["_TextBox"].Text, makeonestring, "")
+		repeat
+			task.wait()
+		until toreturn ~= nil
+		toreturn = string.gsub(toreturn, makeonestring, "")
+		table.insert(getgenv().rconsoletablerem, toreturn)
+		makeonestring = table.concat(getgenv().rconsoletablerem, "")
+		getgenv().rconsoleConverted["_TextBox"].Text = makeonestring
+		return toreturn
+	end
+end
+-- creds to vxsty
+getgenv().httpget = function(url)
+	return game:HttpGet(url)
+end
+getgenv().httppost = function(url, body, contenttype)
+	return game:HttpPostAsync(url, body, contenttype)
+end
+getgenv().request = function(args)
+	if args.Method == 'GET' then
+		local result = {}
+		local s, getresult = pcall(function()
+			return getgenv().httpget(args.Url)
+		end)
+		result.Body = s and getresult or ''
+		result.Success = s
+		result.StatusCode = s and 200 or 400 -- Inaccurate but works i guess?
+		return result
+	elseif args.Method == 'POST' then
+		local result = {}
+		local s, r = pcall(function()
+			return getgenv().httppost(args.Url, args.Body or '', args.Headers and args.Headers['Content-Type'] and args.Headers['Content-Type'] or 'application/x-www-form-urlencoded')
+		end)
+		result.Success = s
+		result.Body = r
+		result.StatusCode = s and 200 or 400 -- Inaccurate but works i guess?
+		return result
+	else
+		print('script tried to send an http request with a non implemented method', args.Method)
+		return {
+			Success = false
+		}
+	end
+end
+-- creds to vxsty
+getgenv().setclipboard = function(data)
+    local vim = game:GetService('VirtualInputManager');
+    local old = game:GetService("UserInputService"):GetFocusedTextBox()
+    local copy = tostring(data)
+    local gui = Instance.new("ScreenGui", getgenv().gethui())
+    local a = Instance.new('TextBox', gui)
+    a.PlaceholderText = ''
+    a.Text = copy
+    a.ClearTextOnFocus = false
+    a.Size = UDim2.new(.1, 0, .15, 0)
+    a.Position = UDim2.new(10, 0, 10, 0)
+    a:CaptureFocus()
+    a = Enum.KeyCode
+    local Keys = {
+     a.RightControl, a.A
+    }
+    local Keys2 = {
+     a.RightControl, a.C, a.V
+    }
+    for i, v in ipairs(Keys) do
+     vim:SendKeyEvent(true, v, false, game)
+     task.wait()
+    end
+    for i, v in ipairs(Keys) do
+     vim:SendKeyEvent(false, v, false, game)
+     task.wait()
+    end
+    for i, v in ipairs(Keys2) do
+     vim:SendKeyEvent(true, v, false, game)
+     task.wait()
+    end
+    for i, v in ipairs(Keys2) do
+     vim:SendKeyEvent(false, v, false, game)
+     task.wait()
+    end
+    gui:Destroy()
+    if old then old:CaptureFocus() end
+end
+-- creds to vxsty
+getgenv().setrbxclipboard = function(data)
+    local vim = game:GetService('VirtualInputManager');
+    local old = game:GetService("UserInputService"):GetFocusedTextBox()
+    local copy = tostring(data)
+    local gui = Instance.new("ScreenGui", getgenv().gethui())
+    local a = Instance.new('TextBox', gui)
+    a.PlaceholderText = ''
+    a.Text = copy
+    a.ClearTextOnFocus = false
+    a.Size = UDim2.new(.1, 0, .15, 0)
+    a.Position = UDim2.new(10, 0, 10, 0)
+    a:CaptureFocus()
+    a = Enum.KeyCode
+    local Keys = {
+     a.RightControl, a.A
+    }
+    local Keys2 = {
+     a.RightControl, a.C, a.V
+    }
+    for i, v in ipairs(Keys) do
+     vim:SendKeyEvent(true, v, false, game)
+     task.wait()
+    end
+    for i, v in ipairs(Keys) do
+     vim:SendKeyEvent(false, v, false, game)
+     task.wait()
+    end
+    for i, v in ipairs(Keys2) do
+     vim:SendKeyEvent(true, v, false, game)
+     task.wait()
+    end
+    for i, v in ipairs(Keys2) do
+     vim:SendKeyEvent(false, v, false, game)
+     task.wait()
+    end
+    gui:Destroy()
+    if old then old:CaptureFocus() end
+end
+-- creds to vxsty
+getgenv().toclipboard = function(data)
+    local vim = game:GetService('VirtualInputManager');
+    local old = game:GetService("UserInputService"):GetFocusedTextBox()
+    local copy = tostring(data)
+    local gui = Instance.new("ScreenGui", getgenv().gethui())
+    local a = Instance.new('TextBox', gui)
+    a.PlaceholderText = ''
+    a.Text = copy
+    a.ClearTextOnFocus = false
+    a.Size = UDim2.new(.1, 0, .15, 0)
+    a.Position = UDim2.new(10, 0, 10, 0)
+    a:CaptureFocus()
+    a = Enum.KeyCode
+    local Keys = {
+     a.RightControl, a.A
+    }
+    local Keys2 = {
+     a.RightControl, a.C, a.V
+    }
+    for i, v in ipairs(Keys) do
+     vim:SendKeyEvent(true, v, false, game)
+     task.wait()
+    end
+    for i, v in ipairs(Keys) do
+     vim:SendKeyEvent(false, v, false, game)
+     task.wait()
+    end
+    for i, v in ipairs(Keys2) do
+     vim:SendKeyEvent(true, v, false, game)
+     task.wait()
+    end
+    for i, v in ipairs(Keys2) do
+     vim:SendKeyEvent(false, v, false, game)
+     task.wait()
+    end
+    gui:Destroy()
+    if old then old:CaptureFocus() end
+end
+getgenv().fpscap = 60
+getgenv().getfpscap = function()
+	return getgenv().fpscap
+end
+getgenv().setfpscap = function(cap)
+	getgenv().fpscap = cap
+end
+--[[ commented out bc to laggy
+    getgenv().clock = tick()
+game:GetService("RunService").RenderStepped:Connect(function()
+	while getgenv().clock + 1 / getgenv().fpscap > tick() do end
+	getgenv().clock = tick()
+
+	task.wait()
+end)]]
+-- creds to vxsty
+getgenv().mouse1click = function(x, y)
+	local vim = game:GetService('VirtualInputManager');
+    x = x or 0
+	y = y or 0
+	vim:SendMouseButtonEvent(x, y, 0, true, game, false)
+	task.wait()
+	vim:SendMouseButtonEvent(x, y, 0, false, game, false)
+end
+getgenv().mouse2click = function(x, y)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	vim:SendMouseButtonEvent(x, y, 1, true, game, false)
+	task.wait()
+	vim:SendMouseButtonEvent(x, y, 1, false, game, false)
+end
+getgenv().mouse1press = function(x, y)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	vim:SendMouseButtonEvent(x, y, 0, true, game, false)
+end
+getgenv().mouse1release = function(x, y)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	vim:SendMouseButtonEvent(x, y, 0, false, game, false)
+end
+getgenv().mouse2press = function(x, y)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	vim:SendMouseButtonEvent(x, y, 1, true, game, false)
+end
+getgenv().mouse2release = function(x, y)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	vim:SendMouseButtonEvent(x, y, 1, false, game, false)
+end
+getgenv().mousescroll = function(x, y, a)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	a = a and true or false
+	vim:SendMouseWheelEvent(x, y, a, game)
+end
+getgenv().mousemoverel = function(relx, rely)
+    local vim = game:GetService('VirtualInputManager');
+	local Pos = workspace.CurrentCamera.ViewportSize
+	relx = relx or 0
+	rely = rely or 0
+	local x = Pos.X * relx
+	local y = Pos.Y * rely
+	vim:SendMouseMoveEvent(x, y, game)
+end
+getgenv().mousemoveabs = function(x, y)
+    local vim = game:GetService('VirtualInputManager');
+	x = x or 0
+	y = y or 0
+	vim:SendMouseMoveEvent(x, y, game)
+end
+-- creds to vxsty
+local keys = {
+	[8] = Enum.KeyCode.Backspace,
+	[9] = Enum.KeyCode.Tab,
+	[12] = Enum.KeyCode.Clear,
+	[13] = Enum.KeyCode.Return,
+	[16] = Enum.KeyCode.LeftShift,
+	[17] = Enum.KeyCode.LeftControl,
+	[18] = Enum.KeyCode.LeftAlt,
+	[19] = Enum.KeyCode.Pause,
+	[20] = Enum.KeyCode.CapsLock,
+	[27] = Enum.KeyCode.Escape,
+	[32] = Enum.KeyCode.Space,
+	[33] = Enum.KeyCode.PageUp,
+	[34] = Enum.KeyCode.PageDown,
+	[35] = Enum.KeyCode.End,
+	[36] = Enum.KeyCode.Home,
+	[45] = Enum.KeyCode.Insert,
+	[46] = Enum.KeyCode.Delete,
+	[48] = Enum.KeyCode.Zero,
+	[49] = Enum.KeyCode.One,
+	[50] = Enum.KeyCode.Two,
+	[51] = Enum.KeyCode.Three,
+	[52] = Enum.KeyCode.Four,
+	[53] = Enum.KeyCode.Five,
+	[54] = Enum.KeyCode.Six,
+	[55] = Enum.KeyCode.Seven,
+	[56] = Enum.KeyCode.Eight,
+	[57] = Enum.KeyCode.Nine,
+	[65] = Enum.KeyCode.A,
+	[66] = Enum.KeyCode.B,
+	[67] = Enum.KeyCode.C,
+	[68] = Enum.KeyCode.D,
+	[69] = Enum.KeyCode.E,
+	[70] = Enum.KeyCode.F,
+	[71] = Enum.KeyCode.G,
+	[72] = Enum.KeyCode.H,
+	[73] = Enum.KeyCode.I,
+	[74] = Enum.KeyCode.J,
+	[75] = Enum.KeyCode.K,
+	[76] = Enum.KeyCode.L,
+	[77] = Enum.KeyCode.M,
+	[78] = Enum.KeyCode.N,
+	[79] = Enum.KeyCode.O,
+	[80] = Enum.KeyCode.P,
+	[81] = Enum.KeyCode.Q,
+	[82] = Enum.KeyCode.R,
+	[83] = Enum.KeyCode.S,
+	[84] = Enum.KeyCode.T,
+	[85] = Enum.KeyCode.U,
+	[86] = Enum.KeyCode.V,
+	[87] = Enum.KeyCode.W,
+	[88] = Enum.KeyCode.X,
+	[89] = Enum.KeyCode.Y,
+	[90] = Enum.KeyCode.Z,
+	[93] = Enum.KeyCode.Menu,
+	[96] = Enum.KeyCode.KeypadZero,
+	[97] = Enum.KeyCode.KeypadOne,
+	[98] = Enum.KeyCode.KeypadTwo,
+	[99] = Enum.KeyCode.KeypadThree,
+	[100] = Enum.KeyCode.KeypadFour,
+	[101] = Enum.KeyCode.KeypadFive,
+	[102] = Enum.KeyCode.KeypadSix,
+	[103] = Enum.KeyCode.KeypadSeven,
+	[104] = Enum.KeyCode.KeypadEight,
+	[105] = Enum.KeyCode.KeypadNine,
+	[106] = Enum.KeyCode.KeypadMultiply,
+	[107] = Enum.KeyCode.KeypadPlus,
+	[109] = Enum.KeyCode.KeypadMinus,
+	[110] = Enum.KeyCode.KeypadPeriod,
+	[111] = Enum.KeyCode.KeypadDivide,
+	[112] = Enum.KeyCode.F1,
+	[113] = Enum.KeyCode.F2,
+	[114] = Enum.KeyCode.F3,
+	[115] = Enum.KeyCode.F4,
+	[116] = Enum.KeyCode.F5,
+	[117] = Enum.KeyCode.F6,
+	[118] = Enum.KeyCode.F7,
+	[119] = Enum.KeyCode.F8,
+	[120] = Enum.KeyCode.F9,
+	[121] = Enum.KeyCode.F10,
+	[122] = Enum.KeyCode.F11,
+	[123] = Enum.KeyCode.F12,
+	[144] = Enum.KeyCode.NumLock,
+	[145] = Enum.KeyCode.ScrollLock,
+	[186] = Enum.KeyCode.Semicolon,
+	[187] = Enum.KeyCode.Equals,
+	[188] = Enum.KeyCode.Comma,
+	[189] = Enum.KeyCode.Minus,
+	[190] = Enum.KeyCode.Period,
+	[191] = Enum.KeyCode.Slash,
+	[192] = Enum.KeyCode.Backquote,
+	[219] = Enum.KeyCode.LeftBracket,
+	[221] = Enum.KeyCode.RightBracket,
+	[222] = Enum.KeyCode.Quote
+}
+getgenv().keyclick = function(key)
+    local vim = game:GetService('VirtualInputManager');
+	if not keys[key] then
+		return error("Key " .. tostring(key) .. ' not found!')
+	end
+	vim:SendKeyEvent(true, keys[key], false, game)
+	task.wait()
+	vim:SendKeyEvent(false, keys[key], false, game)
+end
+getgenv().keypress = function(key)
+    local vim = game:GetService('VirtualInputManager');
+	if not keys[key] then
+		return error("Key " .. tostring(key) .. ' not found!')
+	end
+	vim:SendKeyEvent(true, keys[key], false, game)
+end
+getgenv().keyrelease = function(key)
+    local vim = game:GetService('VirtualInputManager');
+	if not keys[key] then
+		return error("Key " .. tostring(key) .. ' not found!')
+	end
+	vim:SendKeyEvent(false, keys[key], false, game)
+end
+--[[
+-- must have write file
+-- put in auto exec
+if not isfolder("queue") then
+    makefolder("queue")
+end
+local rs = math.random(1,999999)
+getgenv().queue_on_teleport = function(code)
+    writefile("queue\\"..tostring(rs)..".lua", code)
+end
+--queue_on_teleport("testy")
+local files = listfiles("queue")
+if #files == 0 then
+    return
+end
+for i, v in pairs(files) do
+    pcall(function()
+        loadstring(readfile(v))()
+    end)
+    delfile(v)
+end]]
